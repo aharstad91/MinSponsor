@@ -1,0 +1,17 @@
+{
+  "name": "spons-theme",
+  "version": "1.0.0",
+  "description": "WordPress tema med Tailwind CSS",
+  "main": "index.js",
+  "scripts": {
+    "build": "tailwindcss -i ./src/style.css -o ./dist/style.css",
+    "watch": "tailwindcss -i ./src/style.css -o ./dist/style.css --watch",
+    "build-prod": "tailwindcss -i ./src/style.css -o ./dist/style.css --minify"
+  },
+  "keywords": ["wordpress", "theme", "tailwind"],
+  "author": "Ditt navn",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.4.0"
+  }
+}
