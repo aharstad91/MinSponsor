@@ -16,6 +16,12 @@ function spons_theme_setup() {
         'caption',
     ));
     
+    // WooCommerce support
+    add_theme_support('woocommerce');
+    add_theme_support('wc-product-gallery-zoom');
+    add_theme_support('wc-product-gallery-lightbox');
+    add_theme_support('wc-product-gallery-slider');
+    
     // Register navigation menu
     register_nav_menus(array(
         'primary' => 'Hovedmeny',
@@ -847,27 +853,23 @@ add_filter('acf/fields/post_object/result/name=parent_lag', function ($title, $p
  * MINSPONSOR STEP 5 - PLAYER SPONSORSHIP
  * ===========================*/
 
+use MinSponsor\Frontend\PlayerRoute;
+use MinSponsor\Admin\SpillerMetaBox;
+use MinSponsor\Checkout\CartPrice;
+use MinSponsor\Checkout\MetaFlow;
+use MinSponsor\Checkout\CheckoutCustomizer;
+use MinSponsor\Gateways\StripeMeta;
+use MinSponsor\Gateways\VippsRecurringMeta;
+use MinSponsor\Settings\PlayerProducts;
+use MinSponsor\Services\StripeCustomerPortal;
+
 /**
- * Load MinSponsor classes and initialize functionality
+ * Load MinSponsor autoloader
  */
-function minsponsor_load_step5_classes() {
-    $classes = array(
-        'Services/QrService.php',
-        'Services/PlayerLinksService.php',
-        'Frontend/PlayerRoute.php',
-        'Admin/SpillerMetaBox.php',
-        'Checkout/CartPrice.php',
-        'Checkout/MetaFlow.php',
-        'Gateways/StripeMeta.php',
-        'Gateways/VippsRecurringMeta.php',
-        'Settings/PlayerProducts.php'
-    );
-    
-    foreach ($classes as $class) {
-        $file_path = get_template_directory() . '/includes/' . $class;
-        if (file_exists($file_path)) {
-            require_once $file_path;
-        }
+function minsponsor_load_autoloader() {
+    $autoloader_path = get_template_directory() . '/includes/autoload.php';
+    if (file_exists($autoloader_path)) {
+        require_once $autoloader_path;
     }
 }
 
@@ -875,44 +877,53 @@ function minsponsor_load_step5_classes() {
  * Initialize MinSponsor Step 5 functionality
  */
 function minsponsor_init_step5() {
-    // Load classes
-    minsponsor_load_step5_classes();
+    // Load autoloader
+    minsponsor_load_autoloader();
     
     // Initialize services if WooCommerce is active
     if (class_exists('WooCommerce')) {
         // Frontend
-        $player_route = new MinSponsor_PlayerRoute();
+        $player_route = new PlayerRoute();
         $player_route->init();
         
         // Admin
         if (is_admin()) {
-            $spiller_metabox = new MinSponsor_SpillerMetaBox();
+            $spiller_metabox = new SpillerMetaBox();
             $spiller_metabox->init();
         }
         
         // Checkout
-        $cart_price = new MinSponsor_CartPrice();
+        $cart_price = new CartPrice();
         $cart_price->init();
         $cart_price->init_validation();
         
-        $meta_flow = new MinSponsor_MetaFlow();
+        $meta_flow = new MetaFlow();
         $meta_flow->init();
         
+        // Checkout customization (simplified fields, Norwegian, trust signals)
+        $checkout_customizer = new CheckoutCustomizer();
+        $checkout_customizer->init();
+        
+        // Stripe Customer Portal for subscription management
+        if (class_exists(StripeCustomerPortal::class)) {
+            $portal = new StripeCustomerPortal();
+            $portal->init();
+        }
+        
         // Gateways
-        if (MinSponsor_StripeMeta::is_stripe_available()) {
-            $stripe_meta = new MinSponsor_StripeMeta();
+        if (StripeMeta::is_stripe_available()) {
+            $stripe_meta = new StripeMeta();
             $stripe_meta->init();
         }
         
-        if (MinSponsor_VippsRecurringMeta::is_vipps_recurring_available() || 
-            MinSponsor_VippsRecurringMeta::is_mobilepay_recurring_available()) {
-            $vipps_meta = new MinSponsor_VippsRecurringMeta();
+        if (VippsRecurringMeta::is_vipps_recurring_available() || 
+            VippsRecurringMeta::is_mobilepay_recurring_available()) {
+            $vipps_meta = new VippsRecurringMeta();
             $vipps_meta->init();
         }
         
         // Frontend scripts for error handling
-        add_action('wp_footer', array('MinSponsor_PlayerRoute', 'display_error_notices'));
-        add_action('wp_footer', array('MinSponsor_PlayerRoute', 'add_qr_scripts'));
+        add_action('wp_footer', [PlayerRoute::class, 'display_error_notices']);
     }
 }
 
@@ -925,54 +936,25 @@ function minsponsor_init_admin_settings() {
         return;
     }
     
-    // Ensure classes are loaded first
-    minsponsor_load_step5_classes();
+    // Ensure autoloader is loaded first
+    minsponsor_load_autoloader();
     
     // Check if class exists after loading
-    if (!class_exists('MinSponsor_PlayerProducts')) {
+    if (!class_exists(PlayerProducts::class)) {
         return;
     }
     
     // Initialize settings with proper timing
-    $player_products = new MinSponsor_PlayerProducts();
+    $player_products = new PlayerProducts();
     $player_products->init();
 }
 
-// Initialize main functionality after all plugins loaded
-add_action('plugins_loaded', 'minsponsor_init_step5', 20);
+// Initialize main functionality after theme setup
+// Note: We use 'init' hook instead of 'plugins_loaded' because themes load AFTER plugins_loaded fires
+add_action('init', 'minsponsor_init_step5', 5);
 
 // Initialize admin settings separately with later timing to ensure WC is fully loaded
 add_action('admin_init', 'minsponsor_init_admin_settings', 15);
-
-/**
- * Generate QR codes when spiller is saved
- */
-function minsponsor_generate_qr_on_save($post_id) {
-    if (get_post_type($post_id) !== 'spiller') {
-        return;
-    }
-    
-    // Only generate for published posts
-    if (get_post_status($post_id) !== 'publish') {
-        return;
-    }
-    
-    // Generate QR codes if they don't exist
-    MinSponsor_QrService::generate_player_qr_codes($post_id, false);
-}
-add_action('save_post_spiller', 'minsponsor_generate_qr_on_save');
-
-/**
- * Clean up QR codes when spiller is deleted
- */
-function minsponsor_cleanup_qr_on_delete($post_id) {
-    if (get_post_type($post_id) !== 'spiller') {
-        return;
-    }
-    
-    MinSponsor_QrService::delete_player_qr_codes($post_id);
-}
-add_action('before_delete_post', 'minsponsor_cleanup_qr_on_delete');
 
 /**
  * Add admin notices for MinSponsor configuration
@@ -1076,5 +1058,6 @@ add_action('pre_get_posts', function ($q) {
         }
     }
 });
+
 ?>
 

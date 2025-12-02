@@ -8,48 +8,50 @@
  * @since 1.0.0
  */
 
+namespace MinSponsor\Checkout;
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class MinSponsor_MetaFlow {
+class MetaFlow {
     
     /**
      * Initialize hooks
      */
-    public function init() {
+    public function init(): void {
         // Order item meta
-        add_action('woocommerce_checkout_create_order_line_item', array($this, 'add_order_line_item_meta'), 10, 4);
+        add_action('woocommerce_checkout_create_order_line_item', [$this, 'add_order_line_item_meta'], 10, 4);
         
         // Order meta
-        add_action('woocommerce_checkout_create_order', array($this, 'add_order_meta'), 10, 2);
+        add_action('woocommerce_checkout_create_order', [$this, 'add_order_meta'], 10, 2);
         
         // Subscription meta (when subscription is created from order)
-        add_action('woocommerce_subscriptions_created_subscription', array($this, 'add_subscription_meta'), 10, 2);
+        add_action('woocommerce_subscriptions_created_subscription', [$this, 'add_subscription_meta'], 10, 2);
         
         // Display meta in admin
-        add_action('woocommerce_admin_order_item_headers', array($this, 'add_admin_order_item_header'));
-        add_action('woocommerce_admin_order_item_values', array($this, 'add_admin_order_item_values'), 10, 3);
+        add_action('woocommerce_admin_order_item_headers', [$this, 'add_admin_order_item_header']);
+        add_action('woocommerce_admin_order_item_values', [$this, 'add_admin_order_item_values'], 10, 3);
         
         // Display meta on order details (customer view)
-        add_filter('woocommerce_order_item_display_meta_key', array($this, 'customize_meta_display_key'), 10, 3);
-        add_filter('woocommerce_order_item_display_meta_value', array($this, 'customize_meta_display_value'), 10, 3);
+        add_filter('woocommerce_order_item_display_meta_key', [$this, 'customize_meta_display_key'], 10, 3);
+        add_filter('woocommerce_order_item_display_meta_value', [$this, 'customize_meta_display_value'], 10, 3);
     }
     
     /**
      * Add MinSponsor metadata to order line items
      *
-     * @param WC_Order_Item_Product $item Order item
+     * @param \WC_Order_Item_Product $item Order item
      * @param string $cart_item_key Cart item key
      * @param array $values Cart item data
-     * @param WC_Order $order Order object
+     * @param \WC_Order $order Order object
      */
-    public function add_order_line_item_meta($item, $cart_item_key, $values, $order) {
+    public function add_order_line_item_meta(\WC_Order_Item_Product $item, string $cart_item_key, array $values, \WC_Order $order): void {
         if (!$this->is_minsponsor_cart_item($values)) {
             return;
         }
         
-        $meta_keys = array(
+        $meta_keys = [
             'minsponsor_club_id',
             'minsponsor_club_name',
             'minsponsor_club_slug',
@@ -62,7 +64,7 @@ class MinSponsor_MetaFlow {
             'minsponsor_amount',
             'minsponsor_interval',
             'minsponsor_ref'
-        );
+        ];
         
         foreach ($meta_keys as $key) {
             if (isset($values[$key])) {
@@ -80,19 +82,19 @@ class MinSponsor_MetaFlow {
     /**
      * Add MinSponsor metadata to order
      *
-     * @param WC_Order $order Order object
+     * @param \WC_Order $order Order object
      * @param array $data Checkout data
      */
-    public function add_order_meta($order, $data) {
-        $minsponsor_items = array();
+    public function add_order_meta(\WC_Order $order, array $data): void {
+        $minsponsor_items = [];
         
         foreach ($order->get_items() as $item_id => $item) {
             $meta = $item->get_meta_data();
-            $minsponsor_data = array();
+            $minsponsor_data = [];
             
             foreach ($meta as $meta_item) {
                 $key = $meta_item->key;
-                if (strpos($key, 'minsponsor_') === 0) {
+                if (str_starts_with($key, 'minsponsor_')) {
                     $minsponsor_data[$key] = $meta_item->value;
                 }
             }
@@ -119,10 +121,10 @@ class MinSponsor_MetaFlow {
     /**
      * Add MinSponsor metadata to subscriptions
      *
-     * @param WC_Subscription $subscription Subscription object
-     * @param WC_Order $order Parent order
+     * @param \WC_Subscription $subscription Subscription object
+     * @param \WC_Order $order Parent order
      */
-    public function add_subscription_meta($subscription, $order) {
+    public function add_subscription_meta(\WC_Subscription $subscription, \WC_Order $order): void {
         $minsponsor_items = $order->get_meta('_minsponsor_items');
         
         if (empty($minsponsor_items)) {
@@ -156,7 +158,7 @@ class MinSponsor_MetaFlow {
      * @param array $cart_item Cart item data
      * @return bool
      */
-    private function is_minsponsor_cart_item($cart_item) {
+    private function is_minsponsor_cart_item(array $cart_item): bool {
         return isset($cart_item['minsponsor_player_id']) || 
                isset($cart_item['minsponsor_interval']);
     }
@@ -164,18 +166,18 @@ class MinSponsor_MetaFlow {
     /**
      * Add header for MinSponsor data in admin order items
      */
-    public function add_admin_order_item_header() {
+    public function add_admin_order_item_header(): void {
         echo '<th class="minsponsor-meta">MinSponsor</th>';
     }
     
     /**
      * Display MinSponsor data in admin order items
      *
-     * @param WC_Product $product Product object
-     * @param WC_Order_Item $item Order item
+     * @param \WC_Product|null $product Product object
+     * @param \WC_Order_Item $item Order item
      * @param int $item_id Item ID
      */
-    public function add_admin_order_item_values($product, $item, $item_id) {
+    public function add_admin_order_item_values(?\WC_Product $product, \WC_Order_Item $item, int $item_id): void {
         echo '<td class="minsponsor-meta">';
         
         $player_name = $item->get_meta('minsponsor_player_name');
@@ -218,28 +220,28 @@ class MinSponsor_MetaFlow {
      * Customize meta key display for customers
      *
      * @param string $display_key Display key
-     * @param WC_Meta_Data $meta Meta data object
-     * @param WC_Order_Item $item Order item
-     * @return string
+     * @param \WC_Meta_Data $meta Meta data object
+     * @param \WC_Order_Item $item Order item
+     * @return string|false
      */
-    public function customize_meta_display_key($display_key, $meta, $item) {
+    public function customize_meta_display_key(string $display_key, \WC_Meta_Data $meta, \WC_Order_Item $item): string|false {
         $key = $meta->key;
         
-        $labels = array(
+        $labels = [
             'minsponsor_player_name' => 'Spiller',
             'minsponsor_team_name' => 'Lag',
             'minsponsor_club_name' => 'Klubb',
             'minsponsor_interval' => 'Type',
             'minsponsor_amount' => 'Beløp',
             'minsponsor_ref' => 'Referanse'
-        );
+        ];
         
         if (isset($labels[$key])) {
             return $labels[$key];
         }
         
         // Hide internal IDs and slugs from customer view
-        $hidden_keys = array(
+        $hidden_keys = [
             'minsponsor_club_id',
             'minsponsor_club_slug',
             'minsponsor_team_id',
@@ -247,9 +249,9 @@ class MinSponsor_MetaFlow {
             'minsponsor_player_id',
             'minsponsor_player_slug',
             'minsponsor_source'
-        );
+        ];
         
-        if (in_array($key, $hidden_keys)) {
+        if (in_array($key, $hidden_keys, true)) {
             return false; // This will hide the meta from customer view
         }
         
@@ -260,11 +262,11 @@ class MinSponsor_MetaFlow {
      * Customize meta value display for customers
      *
      * @param string $display_value Display value
-     * @param WC_Meta_Data $meta Meta data object
-     * @param WC_Order_Item $item Order item
+     * @param \WC_Meta_Data $meta Meta data object
+     * @param \WC_Order_Item $item Order item
      * @return string
      */
-    public function customize_meta_display_value($display_value, $meta, $item) {
+    public function customize_meta_display_value(string $display_value, \WC_Meta_Data $meta, \WC_Order_Item $item): string {
         $key = $meta->key;
         $value = $meta->value;
         
@@ -283,11 +285,11 @@ class MinSponsor_MetaFlow {
     /**
      * Get MinSponsor metadata for payment gateways
      *
-     * @param WC_Order $order Order object
+     * @param \WC_Order $order Order object
      * @return array Formatted metadata for payment gateways
      */
-    public static function get_payment_metadata($order) {
-        $metadata = array();
+    public static function get_payment_metadata(\WC_Order $order): array {
+        $metadata = [];
         
         // Get MinSponsor data from order
         $club_name = $order->get_meta('_minsponsor_club_name');

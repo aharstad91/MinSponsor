@@ -1,10 +1,10 @@
-# MinSponsor STEG 5 - Spillerstøtte med QR og Metadata
+# MinSponsor - Spillerstøtte Dokumentasjon
 
 ## Oversikt
 
-STEG 5 implementerer komplett spillerstøtte-funksjonalitet med automatisk generering av sponsorlenker, QR-koder og metadata-flyt gjennom hele betalingsprosessen.
+Spillerstøtte-funksjonaliteten lar sponsorer støtte individuelle spillere via unike lenker. Systemet håndterer både engangsstøtte og månedlige abonnementer.
 
-## Funksjoner implementert
+## Funksjoner
 
 ### 1. Spillerstøtte-lenker
 - **Engangslink**: `/stott/{klubb}/{lag}/{spiller}?interval=once`
@@ -12,25 +12,17 @@ STEG 5 implementerer komplett spillerstøtte-funksjonalitet med automatisk gener
 - Støtte for dynamisk beløp: `&amount=200`
 - Referanse-sporing: `&ref=flyer01`
 
-### 2. QR-kode generering
-- Automatisk generering av PNG QR-koder (1024px)
-- Lagring i WordPress Media Library
-- Filnavn: `qr-spiller-{slug}-once.png` / `qr-spiller-{slug}-month.png`
-- Høy feilkorrigering for optimal lesbarhet
-
-### 3. Admin-funksjonalitet
+### 2. Admin-funksjonalitet
 - Metaboks på spiller-poster i admin
 - "Kopiér lenke" funksjonalitet for begge lenketyper
-- QR-forhåndsvisning og nedlasting
 - Standardbeløp konfigurasjon (50/100/200/300 kr)
-- Regenerer QR-koder ved behov
 
-### 4. Dynamisk pris i handlekurv
+### 3. Dynamisk pris i handlekurv
 - Overstyr produktpris med amount-parameter
 - Virker for både engangsprodukter og abonnementer
 - Korrekt prisvisning i handlekurv og kasse
 
-### 5. Metadata-flyt
+### 4. Metadata-flyt
 - **Cart → Order**: Alle MinSponsor-data følger med
 - **Order → Subscription**: Metadata kopieres til abonnement
 - **Stripe**: Metadata sendes til Payment Intent
@@ -55,7 +47,6 @@ Før du kan bruke spillerstøtte må du opprette to WooCommerce-produkter:
 ### 2. Konfigurer produkter
 Gå til **WooCommerce → Innstillinger → MinSponsor** og velg:
 - Hvilke produkter som skal brukes for spillerstøtte
-- QR-kode innstillinger (størrelse, feilkorrigering)
 
 ### 3. Test konfigurasjonen
 Bruk "Test produkter" knappene i innstillingene for å validere at produktene er korrekt satt opp.
@@ -66,16 +57,15 @@ Bruk "Test produkter" knappene i innstillingene for å validere at produktene er
 1. Opprett en klubb
 2. Opprett et lag knyttet til klubben (via ACF parent_klubb felt)
 3. Opprett en spiller knyttet til laget (via ACF parent_lag felt)
-4. QR-koder genereres automatisk ved lagring
 
 ### 2. Bruke sponsorlenker
 1. Gå til spiller-posten i admin
 2. Se "MinSponsor - Spillerstøtte" metaboks i høyre kolonne
-3. Kopier ønsket lenke eller skann QR-kode
-4. Del lenken eller QR-koden med potensielle sponsorer
+3. Kopier ønsket lenke
+4. Del lenken med potensielle sponsorer
 
 ### 3. Sponsorprosess
-1. Bruker besøker sponsorlenke eller skanner QR-kode
+1. Bruker besøker sponsorlenke
 2. Automatisk videresending til handlekurv med riktig produkt
 3. Korrekt pris settes hvis amount-parameter er oppgitt
 4. Automatisk videresending til kasse
@@ -111,18 +101,33 @@ https://example.com/stott/heimdal-if/handballg09/ole-hansen/?interval=once&amoun
 }
 ```
 
+## Arkitektur
+
+### Namespace-struktur
+
+```
+MinSponsor\
+├── Admin\
+│   └── SpillerMetaBox         # Admin metaboks for spillere
+├── Checkout\
+│   ├── CartPrice              # Dynamisk prissetting
+│   └── MetaFlow               # Cart→Order→Subscription metadata
+├── Frontend\
+│   └── PlayerRoute            # Frontend routing og add-to-cart
+├── Gateways\
+│   ├── StripeMeta             # Stripe metadata injection
+│   └── VippsRecurringMeta     # Vipps/MobilePay metadata
+├── Services\
+│   └── PlayerLinksService     # Lenke-generering og validering
+└── Settings\
+    └── PlayerProducts         # WooCommerce innstillinger
+```
+
+### Autoloading
+
+Prosjektet bruker PSR-4 autoloading via `includes/autoload.php`. Klasser lastes automatisk basert på namespace.
+
 ## Feilsøking
-
-### Ingen QR-koder genereres
-**Årsaker:**
-- Spilleren er ikke knyttet til lag
-- Laget er ikke knyttet til klubb
-- Manglende tillatelser for Media Library
-
-**Løsning:**
-1. Kontroller ACF-relasjoner (parent_lag, parent_klubb)
-2. Klikk "Regenerer QR-koder" i metaboksen
-3. Sjekk error_log for feilmeldinger
 
 ### Lenker virker ikke
 **Årsaker:**
@@ -168,57 +173,10 @@ https://example.com/stott/heimdal-if/handballg09/ole-hansen/?interval=once&amoun
 2. Kontroller at produktet er type "Subscription"
 3. Test med standardprodukt først
 
-## Teknisk oversikt
+## Fremtidige funksjoner
 
-### Hooks registrert
-- `template_redirect`: PlayerRoute for å håndtere sponsorlenker
-- `woocommerce_before_calculate_totals`: Dynamisk pris
-- `woocommerce_checkout_create_order_line_item`: Order line metadata
-- `woocommerce_checkout_create_order`: Order metadata
-- `woocommerce_subscriptions_created_subscription`: Subscription metadata
-- `wc_stripe_payment_intent_args`: Stripe metadata
-- `vipps_recurring_agreement_data`: Vipps metadata
-- `save_post_spiller`: QR-generering
-- `before_delete_post`: QR-opprydding
-
-### Klasser opprettet
-- `MinSponsor_QrService`: QR-kode generering og lagring
-- `MinSponsor_PlayerLinksService`: Lenke-generering og validering
-- `MinSponsor_PlayerRoute`: Frontend routing og add-to-cart
-- `MinSponsor_SpillerMetaBox`: Admin metaboks
-- `MinSponsor_CartPrice`: Dynamisk pris i handlekurv
-- `MinSponsor_MetaFlow`: Metadata-flyt cart→order→subscription
-- `MinSponsor_StripeMeta`: Stripe metadata injection
-- `MinSponsor_VippsRecurringMeta`: Vipps/MobilePay metadata
-- `MinSponsor_PlayerProducts`: WooCommerce innstillinger
-
-### Filer opprettet/endret
-```
-includes/
-├── Services/
-│   ├── QrService.php
-│   └── PlayerLinksService.php
-├── Frontend/
-│   └── PlayerRoute.php
-├── Admin/
-│   ├── SpillerMetaBox.php
-│   └── admin.js
-├── Checkout/
-│   ├── CartPrice.php
-│   └── MetaFlow.php
-├── Gateways/
-│   ├── StripeMeta.php
-│   └── VippsRecurringMeta.php
-└── Settings/
-    ├── PlayerProducts.php
-    └── settings.js
-docs/
-└── step5.md
-functions.php (oppdatert)
-```
-
-## Support og utvikling
-
-For feilrapporter eller feature requests, legg til issues i prosjektets repository.
-
-Ved problemer med spesifikke betalingsgateway-integrasjoner, kontroller om plugin-leverandøren har endret hook-navn i nyere versjoner.
+- QR-kode generering (planlagt)
+- Fee-beregning og splitting
+- Stripe Connect for utbetaling til klubber
+- Webhook-håndtering for betalingsstatus
+- Dunning/retry for mislykkede betalinger
