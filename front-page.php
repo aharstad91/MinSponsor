@@ -1,9 +1,10 @@
 <?php
 /**
- * Front Page Template - MinSponsor Splash Page
+ * Front Page Template - MinSponsor Landing Page
  * 
+ * Basert på React-design fra Figma
  * Designsystem: Varm, inkluderende, pålitelig og enkel.
- * Farger: Korall, Terrakotta, Beige, Brun
+ * Farger: Korall (#F6A586), Terrakotta (#D97757), Beige (#F5EFE6), Brun (#3D3228)
  */
 get_header();
 ?>
@@ -11,420 +12,803 @@ get_header();
 <style>
     /* Front page specific styles */
     .hero-section {
-        background: linear-gradient(135deg, var(--color-beige) 0%, var(--color-krem) 100%);
-        min-height: calc(100vh - 80px);
+        background-color: var(--color-beige);
     }
     
-    .hero-blob {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(60px);
-        opacity: 0.4;
-    }
-    
-    .blob-1 {
-        width: 400px;
-        height: 400px;
-        background: var(--color-korall);
-        top: 10%;
-        right: 10%;
-    }
-    
-    .blob-2 {
-        width: 300px;
-        height: 300px;
-        background: var(--color-terrakotta);
-        bottom: 20%;
-        left: 5%;
-    }
-    
-    .feature-card {
-        background: var(--color-krem);
-        border-radius: var(--radius-md);
-        padding: 32px;
-        box-shadow: var(--shadow-warm);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    
-    .feature-card:hover {
-        transform: translateY(-4px);
-        box-shadow: var(--shadow-warm-lg);
-    }
-    
-    .feature-icon {
-        width: 56px;
-        height: 56px;
-        background: linear-gradient(135deg, var(--color-korall) 0%, var(--color-terrakotta) 100%);
-        border-radius: 12px;
+    /* Blob Icon for feature cards */
+    .blob-icon {
+        width: 64px;
+        height: 64px;
+        background-color: var(--color-korall);
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 20px;
+        margin-bottom: 24px;
     }
     
-    .feature-icon svg {
-        width: 28px;
-        height: 28px;
-        color: var(--color-krem);
+    .blob-icon svg {
+        width: 32px;
+        height: 32px;
+        color: var(--color-brun);
     }
     
-    .stats-item {
-        text-align: center;
+    .blob-icon.rotate-left {
+        transform: rotate(-6deg);
     }
     
-    .stats-number {
-        font-size: 48px;
+    .blob-icon.rotate-right {
+        transform: rotate(3deg);
+    }
+    
+    .blob-icon.rotate-slight {
+        transform: rotate(-3deg);
+    }
+    
+    /* Glass cards */
+    .glass-card {
+        background: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        border-radius: 24px;
+        padding: 32px;
+        box-shadow: 0 4px 20px rgba(61, 50, 40, 0.08);
+        transition: box-shadow 0.3s ease;
+        height: 100%;
+    }
+    
+    .glass-card:hover {
+        box-shadow: 0 8px 30px rgba(61, 50, 40, 0.12);
+        transform: translateY(-2px);
+    }
+    
+    /* Clickable card styles */
+    a.glass-card {
+        display: block;
+        text-decoration: none;
+        cursor: pointer;
+    }
+    
+    a.glass-card:focus {
+        outline: 3px solid var(--color-terrakotta);
+        outline-offset: 4px;
+    }
+    
+    /* Process steps section */
+    .process-section {
+        background: rgba(255, 255, 255, 0.4);
+    }
+    
+    .step-circle {
+        width: 96px;
+        height: 96px;
+        border-radius: 50%;
+        background: white;
+        border: 4px solid var(--color-korall);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 30px;
         font-weight: 700;
-        color: var(--color-terrakotta);
-        line-height: 1;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 10px rgba(61, 50, 40, 0.06);
+        transition: transform 0.2s ease;
     }
     
-    .cta-section {
-        background: linear-gradient(135deg, var(--color-korall) 0%, var(--color-terrakotta) 100%);
+    .step-circle:hover,
+    .step-item:hover .step-circle {
+        transform: scale(1.1);
     }
     
-    .illustration-container {
-        max-width: 320px;
+    .step-circle.filled {
+        background: var(--color-korall);
+        color: white;
+        border-color: var(--color-korall);
+        box-shadow: 0 4px 15px rgba(246, 165, 134, 0.4);
+    }
+    
+    .step-arrow {
+        color: rgba(217, 119, 87, 0.4);
+        position: absolute;
+        top: 32px;
+        right: -50%;
+    }
+    
+    /* CTA Button */
+    .btn-cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--color-terrakotta);
+        color: white;
+        font-weight: 700;
+        font-size: 20px;
+        padding: 20px 40px;
+        border-radius: 9999px;
+        box-shadow: 0 4px 20px rgba(217, 119, 87, 0.3);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .btn-cta:hover {
+        transform: scale(1.05);
+        box-shadow: 0 6px 25px rgba(217, 119, 87, 0.4);
+    }
+    
+    /* Hero image */
+    .hero-image {
+        max-width: 280px;
         margin: 0 auto;
     }
     
-    @media (max-width: 768px) {
-        .hero-section {
-            min-height: auto;
-            padding-top: 60px;
-            padding-bottom: 60px;
+    @media (min-width: 768px) {
+        .hero-image {
+            max-width: 350px;
         }
-        
-        .stats-number {
-            font-size: 36px;
-        }
+    }
+    
+    /* Footer styles */
+    .footer-section {
+        border-top: 1px solid #E5DCCA;
+    }
+    
+    /* Entity Search Styles */
+    .entity-search-container {
+        position: relative;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .entity-search-input {
+        width: 100%;
+        padding: 18px 24px 18px 56px;
+        font-size: 18px;
+        border: 2px solid transparent;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 4px 20px rgba(61, 50, 40, 0.12);
+        color: var(--color-brun);
+        transition: all 0.2s ease;
+    }
+    
+    .entity-search-input::placeholder {
+        color: var(--color-brun);
+        opacity: 0.5;
+    }
+    
+    .entity-search-input:focus {
+        outline: none;
+        border-color: var(--color-terrakotta);
+        box-shadow: 0 4px 25px rgba(217, 119, 87, 0.25);
+    }
+    
+    .entity-search-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        color: var(--color-brun);
+        opacity: 0.6;
+        pointer-events: none;
+    }
+    
+    .entity-search-spinner {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        display: none;
+    }
+    
+    .entity-search-spinner.visible {
+        display: block;
+    }
+    
+    .entity-search-spinner svg {
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+    
+    .entity-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 8px;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-radius: 16px;
+        box-shadow: 0 8px 40px rgba(61, 50, 40, 0.15);
+        overflow: hidden;
+        z-index: 100;
+        display: none;
+        max-height: 360px;
+        overflow-y: auto;
+    }
+    
+    .entity-dropdown.visible {
+        display: block;
+    }
+    
+    .entity-dropdown-item {
+        display: flex;
+        align-items: center;
+        padding: 14px 20px;
+        cursor: pointer;
+        transition: background 0.15s ease;
+        text-decoration: none;
+        color: var(--color-brun);
+    }
+    
+    .entity-dropdown-item:hover,
+    .entity-dropdown-item.active {
+        background: rgba(246, 165, 134, 0.2);
+    }
+    
+    .entity-dropdown-item-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: var(--color-korall);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 14px;
+        flex-shrink: 0;
+    }
+    
+    .entity-dropdown-item-icon svg {
+        width: 20px;
+        height: 20px;
+        color: var(--color-brun);
+    }
+    
+    .entity-dropdown-item-content {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .entity-dropdown-item-name {
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 2px;
+    }
+    
+    .entity-dropdown-item-sublabel {
+        font-size: 14px;
+        opacity: 0.7;
+    }
+    
+    .entity-type-chip {
+        font-size: 11px;
+        font-weight: 600;
+        padding: 3px 8px;
+        border-radius: 6px;
+        background: rgba(217, 119, 87, 0.15);
+        color: var(--color-terrakotta);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .entity-no-results {
+        padding: 24px;
+        text-align: center;
+        color: var(--color-brun);
+        opacity: 0.8;
+    }
+    
+    .entity-no-results a {
+        color: var(--color-terrakotta);
+        font-weight: 600;
+    }
+    
+    .search-helper-text {
+        font-size: 14px;
+        opacity: 0.6;
+        margin-top: 12px;
+        color: var(--color-brun);
     }
 </style>
 
-<!-- Hero Section -->
-<section class="hero-section relative overflow-hidden">
-    <!-- Decorative blobs -->
-    <div class="hero-blob blob-1 hidden lg:block"></div>
-    <div class="hero-blob blob-2 hidden lg:block"></div>
-    
-    <div class="max-w-6xl mx-auto px-4 py-16 md:py-24 relative z-10">
-        <div class="grid md:grid-cols-2 gap-12 items-center">
-            
-            <!-- Left: Text content -->
-            <div class="text-center md:text-left">
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6" style="color: var(--color-brun); line-height: 1.1;">
-                    Gi barna mer tid til det de elsker
-                </h1>
-                
-                <p class="text-lg md:text-xl mb-8" style="color: var(--color-brun-light); line-height: 1.7;">
-                    MinSponsor gjør det enkelt for foreldre og tilhengere å støtte klubben, laget eller spilleren. 
-                    <strong style="color: var(--color-brun);">Enkelt. Trygt. Forutsigbart.</strong>
-                </p>
-                
-                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-                    <a href="#hvordan" class="btn-primary text-center">
-                        Se hvordan det fungerer
-                    </a>
-                    <a href="#kontakt" class="btn-secondary text-center">
-                        Kontakt oss
-                    </a>
-                </div>
-                
-                <!-- Trust indicators -->
-                <div class="mt-10 flex flex-wrap gap-6 justify-center md:justify-start text-sm" style="color: var(--color-brun-light);">
-                    <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-terrakotta);">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        <span>100% til mottaker</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-terrakotta);">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        <span>Ingen binding</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-terrakotta);">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                        </svg>
-                        <span>Sikker betaling</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Right: Illustration -->
-            <div class="illustration-container order-first md:order-last">
-                <!-- SVG illustration inspired by the brand figures -->
-                <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
-                    <!-- Ground shadow -->
-                    <ellipse cx="200" cy="360" rx="150" ry="15" fill="#3D3228" opacity="0.1"/>
-                    
-                    <!-- Left figure (terrakotta/coral) -->
-                    <ellipse cx="140" cy="260" rx="70" ry="90" fill="#D97757"/>
-                    <!-- Face -->
-                    <path d="M115 235 Q120 240 125 235" stroke="#3D3228" stroke-width="3" stroke-linecap="round" fill="none"/>
-                    <path d="M155 235 Q160 240 165 235" stroke="#3D3228" stroke-width="3" stroke-linecap="round" fill="none"/>
-                    <path d="M125 260 Q140 275 155 260" stroke="#3D3228" stroke-width="3" stroke-linecap="round" fill="none"/>
-                    <!-- Hair/top -->
-                    <circle cx="140" cy="170" r="12" fill="#D97757"/>
-                    <!-- Arm reaching to heart -->
-                    <path d="M185 250 Q200 240 210 260" stroke="#3D3228" stroke-width="3" stroke-linecap="round" fill="none"/>
-                    
-                    <!-- Right figure (korall/orange) -->
-                    <ellipse cx="270" cy="250" rx="75" ry="100" fill="#F6A586"/>
-                    <!-- Face -->
-                    <path d="M245 220 Q250 225 255 220" stroke="#3D3228" stroke-width="3" stroke-linecap="round" fill="none"/>
-                    <path d="M285 220 Q290 225 295 220" stroke="#3D3228" stroke-width="3" stroke-linecap="round" fill="none"/>
-                    <path d="M255 248 Q270 263 285 248" stroke="#3D3228" stroke-width="3" stroke-linecap="round" fill="none"/>
-                    <!-- Arm reaching to heart -->
-                    <path d="M210 250 Q195 240 190 260" stroke="#3D3228" stroke-width="3" stroke-linecap="round" fill="none"/>
-                    
-                    <!-- Heart in the middle -->
-                    <path d="M200 230 C200 210 175 195 175 220 C175 245 200 270 200 270 C200 270 225 245 225 220 C225 195 200 210 200 230" 
-                          fill="#F4C85E" stroke="#3D3228" stroke-width="3"/>
-                    
-                    <!-- Small hearts floating -->
-                    <path d="M320 140 C320 132 312 126 312 134 C312 142 320 150 320 150 C320 150 328 142 328 134 C328 126 320 132 320 140" 
-                          fill="#F6A586" opacity="0.6"/>
-                    <path d="M90 180 C90 174 84 170 84 176 C84 182 90 188 90 188 C90 188 96 182 96 176 C96 170 90 174 90 180" 
-                          fill="#D97757" opacity="0.6"/>
-                    <path d="M350 220 C350 215 345 212 345 217 C345 222 350 227 350 227 C350 227 355 222 355 217 C355 212 350 215 350 220" 
-                          fill="#F4C85E" opacity="0.5"/>
+<!-- 1. HERO SECTION -->
+<header class="hero-section relative pt-12 pb-20 px-6 text-center">
+    <div class="max-w-4xl mx-auto flex flex-col items-center">
+        
+        <h1 class="text-4xl md:text-[56px] font-bold leading-tight mb-8 md:mb-12" style="color: var(--color-brun);">
+            Mer idrett. Mindre dugnad.
+        </h1>
+        
+        <!-- Hero illustration -->
+        <div class="hero-image mb-8">
+            <img 
+                src="<?php echo get_template_directory_uri(); ?>/assets/images/minsponsor-characters.png" 
+                alt="To vennlige figurer som holder et hjerte sammen" 
+                class="w-full h-auto drop-shadow-xl"
+            />
+        </div>
+        
+        <h2 class="text-2xl md:text-[32px] font-bold mb-4" style="color: var(--color-brun);">
+            MinSponsor gjør jobben
+        </h2>
+        
+        <p class="text-lg md:text-xl opacity-80 max-w-lg mb-8" style="color: var(--color-brun);">
+            Stabile inntekter - uten salg, leveranser eller ekstra arbeid
+        </p>
+        
+        <!-- Entity Search -->
+        <div class="entity-search-container w-full mb-6" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-owns="entity-search-results">
+            <div class="entity-search-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
             </div>
+            <input 
+                type="text" 
+                id="entity-search-input"
+                class="entity-search-input"
+                placeholder="Søk etter klubb, lag eller utøver..."
+                aria-autocomplete="list"
+                aria-controls="entity-search-results"
+                autocomplete="off"
+            />
+            <div class="entity-search-spinner" id="entity-search-spinner">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-terrakotta);">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+            </div>
+            <div class="entity-dropdown" id="entity-search-results" role="listbox" aria-label="Søkeresultater">
+                <!-- Results populated by JS -->
+            </div>
+        </div>
+        <p class="search-helper-text" id="search-helper-text">
+            Søk på klubb, lag eller utøver — eller 
+            <a href="#kontakt" class="register-team-link" style="color: var(--color-terrakotta); font-weight: 600; text-decoration: underline; text-underline-offset: 2px;">registrer ditt lag</a>
+        </p>
+        
+        <div class="mt-6">
+            <a href="#hvordan" class="text-lg font-medium hover:underline" style="color: var(--color-terrakotta);">
+                Slik fungerer det →
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- 2. THREE COLUMNS: "Dette løser vi" -->
+<section id="fordeler" class="py-20 px-6" style="background-color: var(--color-beige);">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-[48px] font-bold mb-4" style="color: var(--color-brun);">Dette løser vi</h2>
+            <p class="text-lg opacity-80" style="color: var(--color-brun);">En enklere hverdag for alle involverte</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Card 1: For Klubben -->
+            <a href="#hvordan" class="glass-card flex flex-col items-center text-center">
+                <div class="blob-icon rotate-left">
+                    <!-- Trophy icon -->
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-4" style="color: var(--color-brun);">For klubben</h3>
+                <p class="text-lg leading-relaxed opacity-85" style="color: var(--color-brun);">
+                    Sikre stabile inntekter uten administrasjon. Vi håndterer alt det praktiske så dere kan fokusere på sporten.
+                </p>
+            </a>
+            
+            <!-- Card 2: For Foreldre (elevated) -->
+            <a href="#hvordan" class="glass-card flex flex-col items-center text-center md:-mt-6">
+                <div class="blob-icon rotate-right">
+                    <!-- Shield icon -->
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-4" style="color: var(--color-brun);">For foreldre</h3>
+                <p class="text-lg leading-relaxed opacity-85" style="color: var(--color-brun);">
+                    Slipp kakelotteri og dørsalg. Støtt laget gjennom smarte avtaler dere faktisk har bruk for i hverdagen.
+                </p>
+            </a>
+            
+            <!-- Card 3: For Barna -->
+            <a href="#hvordan" class="glass-card flex flex-col items-center text-center">
+                <div class="blob-icon rotate-slight">
+                    <!-- Sparkles icon -->
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-4" style="color: var(--color-brun);">For barna</h3>
+                <p class="text-lg leading-relaxed opacity-85" style="color: var(--color-brun);">
+                    Mer tid til lek og trening. Mindre fokus på inntjening betyr mer glede og samhold i laget.
+                </p>
+            </a>
         </div>
     </div>
 </section>
 
-<!-- How it works Section -->
-<section id="hvordan" class="py-20 md:py-28" style="background-color: var(--color-krem);">
-    <div class="max-w-6xl mx-auto px-4">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold mb-4" style="color: var(--color-brun);">
-                Slik fungerer det
-            </h2>
-            <p class="text-lg max-w-2xl mx-auto" style="color: var(--color-brun-light);">
-                Tre enkle steg for å støtte din favorittspiller, lag eller klubb
-            </p>
+<!-- 3. PROCESS FLOW: "Slik fungerer det" -->
+<section id="hvordan" class="process-section py-24 px-6">
+    <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-20">
+            <h2 class="text-3xl md:text-[48px] font-bold mb-4" style="color: var(--color-brun);">Slik fungerer det</h2>
+            <p class="text-lg opacity-80" style="color: var(--color-brun);">Kom i gang på 1-2-3 (og 4)</p>
         </div>
         
-        <div class="grid md:grid-cols-3 gap-8">
+        <div class="relative grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
             <!-- Step 1 -->
-            <div class="feature-card text-center">
-                <div class="feature-icon mx-auto">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            <div class="step-item flex flex-col items-center text-center relative z-10">
+                <div class="hidden md:block step-arrow">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                     </svg>
                 </div>
-                <div class="text-5xl font-bold mb-4" style="color: var(--color-korall);">1</div>
-                <h3 class="text-xl font-semibold mb-3" style="color: var(--color-brun);">Finn din favoritt</h3>
-                <p style="color: var(--color-brun-light);">
-                    Søk opp klubben, laget eller spilleren du vil støtte
+                <div class="step-circle" style="color: var(--color-brun);">1</div>
+                <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Registrer laget</h3>
+                <p class="opacity-80 px-2" style="color: var(--color-brun);">
+                    Opprett en konto for laget eller foreningen din helt gratis.
                 </p>
             </div>
             
             <!-- Step 2 -->
-            <div class="feature-card text-center">
-                <div class="feature-icon mx-auto">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            <div class="step-item flex flex-col items-center text-center relative">
+                <div class="hidden md:block step-arrow">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                     </svg>
                 </div>
-                <div class="text-5xl font-bold mb-4" style="color: var(--color-korall);">2</div>
-                <h3 class="text-xl font-semibold mb-3" style="color: var(--color-brun);">Velg beløp</h3>
-                <p style="color: var(--color-brun-light);">
-                    Bestem hvor mye du vil gi – engang eller månedlig
+                <div class="step-circle z-10" style="color: var(--color-brun);">2</div>
+                <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Del lenken</h3>
+                <p class="opacity-80 px-2" style="color: var(--color-brun);">
+                    Send din unike støttelenke til foreldre, familie og venner.
                 </p>
             </div>
             
             <!-- Step 3 -->
-            <div class="feature-card text-center">
-                <div class="feature-icon mx-auto">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            <div class="step-item flex flex-col items-center text-center relative">
+                <div class="hidden md:block step-arrow">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                     </svg>
                 </div>
-                <div class="text-5xl font-bold mb-4" style="color: var(--color-korall);">3</div>
-                <h3 class="text-xl font-semibold mb-3" style="color: var(--color-brun);">Gled noen</h3>
-                <p style="color: var(--color-brun-light);">
-                    100% av støtten går direkte til mottakeren
+                <div class="step-circle z-10" style="color: var(--color-brun);">3</div>
+                <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Velg beløp</h3>
+                <p class="opacity-80 px-2" style="color: var(--color-brun);">
+                    Supporterne velger hvor mye de vil støtte – engang eller månedlig.
                 </p>
             </div>
+            
+            <!-- Step 4 -->
+            <div class="step-item flex flex-col items-center text-center relative">
+                <div class="step-circle filled z-10">4</div>
+                <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Motta støtte</h3>
+                <p class="opacity-80 px-2" style="color: var(--color-brun);">
+                    Laget får utbetalt 100% av støtten automatisk.
+                </p>
+            </div>
+        </div>
+        
+        <div class="mt-20 text-center">
+            <a href="#kontakt" class="btn-cta">
+                Start innsamlingen nå
+            </a>
         </div>
     </div>
 </section>
 
-<!-- Benefits Section -->
-<section class="py-20 md:py-28" style="background-color: var(--color-beige);">
-    <div class="max-w-6xl mx-auto px-4">
-        <div class="grid md:grid-cols-2 gap-16 items-center">
-            
-            <!-- Left: Benefits list -->
-            <div>
-                <h2 class="text-3xl md:text-4xl font-bold mb-6" style="color: var(--color-brun);">
-                    Hvorfor foreldre elsker MinSponsor
-                </h2>
-                <p class="text-lg mb-8" style="color: var(--color-brun-light);">
-                    Vi fjerner bryet med dugnad og kontanter, slik at du kan fokusere på det viktigste – barna.
-                </p>
-                
-                <div class="space-y-6">
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style="background-color: var(--color-terrakotta);">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-krem);">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold mb-1" style="color: var(--color-brun);">Spar tid på dugnad</h4>
-                            <p style="color: var(--color-brun-light);">Færre kaker, flere kamper. Støtt med noen klikk.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style="background-color: var(--color-terrakotta);">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-krem);">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold mb-1" style="color: var(--color-brun);">Trygg og sikker</h4>
-                            <p style="color: var(--color-brun-light);">Betaling via Stripe og Vipps. Ingen overraskelser.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style="background-color: var(--color-terrakotta);">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-krem);">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold mb-1" style="color: var(--color-brun);">Avslutt når du vil</h4>
-                            <p style="color: var(--color-brun-light);">Ingen binding. Stopp abonnementet med ett klikk.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-4">
-                        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" style="background-color: var(--color-terrakotta);">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-krem);">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                            </svg>
-                        </div>
-                        <div>
-                            <h4 class="font-semibold mb-1" style="color: var(--color-brun);">Full åpenhet</h4>
-                            <p style="color: var(--color-brun-light);">100% av støtten går til den du velger.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Right: Stats -->
-            <div class="card-lg" style="background: var(--color-krem);">
-                <div class="grid grid-cols-2 gap-8">
-                    <div class="stats-item">
-                        <div class="stats-number">100%</div>
-                        <div class="mt-2" style="color: var(--color-brun-light);">til mottaker</div>
-                    </div>
-                    <div class="stats-item">
-                        <div class="stats-number">0 kr</div>
-                        <div class="mt-2" style="color: var(--color-brun-light);">binding</div>
-                    </div>
-                    <div class="stats-item">
-                        <div class="stats-number">2 min</div>
-                        <div class="mt-2" style="color: var(--color-brun-light);">å komme i gang</div>
-                    </div>
-                    <div class="stats-item">
-                        <div class="stats-number">24/7</div>
-                        <div class="mt-2" style="color: var(--color-brun-light);">full kontroll</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- For Clubs Section -->
-<section class="py-20 md:py-28" style="background-color: var(--color-krem);">
-    <div class="max-w-6xl mx-auto px-4">
-        <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-4xl font-bold mb-4" style="color: var(--color-brun);">
-                For klubber og lag
-            </h2>
-            <p class="text-lg max-w-2xl mx-auto" style="color: var(--color-brun-light);">
-                Gi medlemmene en enkel måte å støtte på – uten ekstra administrasjon
+<!-- Footer -->
+<footer id="kontakt" class="footer-section py-12 px-6 mt-12" style="background-color: var(--color-beige);">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-sm opacity-80" style="color: var(--color-brun);">
+        <div class="col-span-1 md:col-span-2">
+            <div class="font-bold text-xl mb-4" style="color: var(--color-brun);">MinSponsor</div>
+            <p class="max-w-xs mb-4">
+                Gjør dugnaden digital og enkel. Vi hjelper norske lag og foreninger med å realisere drømmene sine.
             </p>
+            <p>© <?php echo date('Y'); ?> Samhold AS</p>
         </div>
-        
-        <div class="grid md:grid-cols-3 gap-8">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-semibold mb-3" style="color: var(--color-brun);">Kom raskt i gang</h3>
-                <p style="color: var(--color-brun-light);">
-                    Registrer klubben på minutter. Vi setter opp alt for dere.
-                </p>
-            </div>
+        <div>
+            <h4 class="font-bold mb-4 text-base" style="color: var(--color-brun);">Snarveier</h4>
+            <ul class="space-y-2">
+                <li><a href="#fordeler" class="hover:underline">Fordeler</a></li>
+                <li><a href="#hvordan" class="hover:underline">Hvordan det virker</a></li>
+                <li><a href="<?php echo home_url('/personvern/'); ?>" class="hover:underline">Personvern</a></li>
+            </ul>
+        </div>
+        <div>
+            <h4 class="font-bold mb-4 text-base" style="color: var(--color-brun);">Kontakt</h4>
+            <ul class="space-y-2">
+                <li><a href="mailto:hei@minsponsor.no" class="hover:underline">hei@minsponsor.no</a></li>
+                <li>Trondheim, Norge</li>
+            </ul>
             
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-semibold mb-3" style="color: var(--color-brun);">Alle nivåer</h3>
-                <p style="color: var(--color-brun-light);">
-                    Støtt klubben, laget eller enkeltspillere – pengene går dit de skal.
-                </p>
-            </div>
-            
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                    </svg>
-                </div>
-                <h3 class="text-xl font-semibold mb-3" style="color: var(--color-brun);">Full oversikt</h3>
-                <p style="color: var(--color-brun-light);">
-                    Se hvem som støtter, hvor mye, og når – i sanntid.
-                </p>
+            <!-- Demo link -->
+            <div class="mt-6 pt-4 border-t" style="border-color: #E5DCCA;">
+                <p class="text-xs mb-2 opacity-60">Se en demo:</p>
+                <a href="<?php echo home_url('/stott/heimdal-handball/gutter-2009/'); ?>" 
+                   class="text-sm font-medium hover:underline" style="color: var(--color-terrakotta);">
+                    Støtt Gutter 2009 →
+                </a>
             </div>
         </div>
     </div>
-</section>
+</footer>
 
-<!-- CTA Section -->
-<section id="kontakt" class="cta-section py-20 md:py-28">
-    <div class="max-w-4xl mx-auto px-4 text-center">
-        <h2 class="text-3xl md:text-4xl font-bold mb-6" style="color: var(--color-krem);">
-            Klar til å forenkle støtten?
-        </h2>
-        <p class="text-lg mb-10 opacity-90" style="color: var(--color-krem);">
-            Ta kontakt for en uforpliktende prat om hvordan MinSponsor kan hjelpe din klubb.
-        </p>
+<!-- Entity Search JavaScript -->
+<script>
+(function() {
+    'use strict';
+    
+    // Config
+    const DEBOUNCE_MS = 200;
+    const MIN_CHARS = 2;
+    const API_ENDPOINT = '<?php echo esc_url(rest_url('minsponsor/v1/entity-search')); ?>';
+    
+    // Mock data fallback (used if API not available)
+    const MOCK_DATA = [
+        { id: 1, type: 'klubb', name: 'Heimdal Håndball', subLabel: 'Klubb', url: '/stott/heimdal-handball/' },
+        { id: 2, type: 'lag', name: 'Gutter 2009', subLabel: 'Heimdal Håndball', url: '/stott/heimdal-handball/gutter-2009/' },
+        { id: 3, type: 'lag', name: 'Jenter 2010', subLabel: 'Heimdal Håndball', url: '/stott/heimdal-handball/jenter-2010/' },
+        { id: 4, type: 'klubb', name: 'Rosenborg BK', subLabel: 'Klubb', url: '/stott/rosenborg-bk/' },
+        { id: 5, type: 'lag', name: 'G14', subLabel: 'Rosenborg BK', url: '/stott/rosenborg-bk/g14/' },
+        { id: 6, type: 'spiller', name: 'Ola Nordmann', subLabel: 'Gutter 2009', url: '/stott/heimdal-handball/gutter-2009/ola-nordmann/' },
+        { id: 7, type: 'klubb', name: 'Byåsen IL', subLabel: 'Klubb', url: '/stott/byasen-il/' },
+        { id: 8, type: 'lag', name: 'Herrer Elite', subLabel: 'Byåsen IL', url: '/stott/byasen-il/herrer-elite/' },
+        { id: 9, type: 'klubb', name: 'Trondheim Friidrett', subLabel: 'Klubb', url: '/stott/trondheim-friidrett/' },
+        { id: 10, type: 'spiller', name: 'Kari Hansen', subLabel: 'Jenter 2010', url: '/stott/heimdal-handball/jenter-2010/kari-hansen/' },
+    ];
+    
+    // Cache for previous searches
+    const searchCache = new Map();
+    const MAX_CACHE_SIZE = 20;
+    
+    // DOM Elements
+    const input = document.getElementById('entity-search-input');
+    const dropdown = document.getElementById('entity-search-results');
+    const spinner = document.getElementById('entity-search-spinner');
+    const container = input?.closest('.entity-search-container');
+    
+    if (!input || !dropdown || !container) return;
+    
+    // State
+    let activeIndex = -1;
+    let currentResults = [];
+    let debounceTimer = null;
+    let useMockData = false;
+    
+    // Type icons
+    const typeIcons = {
+        klubb: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>',
+        lag: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>',
+        spiller: '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>'
+    };
+    
+    const typeLabels = {
+        klubb: 'Klubb',
+        lag: 'Lag',
+        spiller: 'Utøver'
+    };
+    
+    // Highlight matching text
+    function highlightMatch(text, query) {
+        if (!query) return text;
+        const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+        return text.replace(regex, '<strong>$1</strong>');
+    }
+    
+    // Render results
+    function renderResults(results, query) {
+        if (results.length === 0) {
+            dropdown.innerHTML = `
+                <div class="entity-no-results">
+                    <p>Ingen treff på «${query}»</p>
+                    <p><a href="<?php echo home_url('/stott/'); ?>">Se alle lag og klubber →</a></p>
+                </div>
+            `;
+            return;
+        }
         
-        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-            <a href="mailto:hei@minsponsor.no" class="inline-flex items-center justify-center gap-2 font-semibold py-4 px-8 rounded-lg transition-all" 
-               style="background-color: var(--color-krem); color: var(--color-terrakotta);">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                </svg>
-                hei@minsponsor.no
+        dropdown.innerHTML = results.map((result, index) => `
+            <a href="${result.url}" 
+               class="entity-dropdown-item${index === activeIndex ? ' active' : ''}" 
+               role="option" 
+               aria-selected="${index === activeIndex}"
+               data-index="${index}">
+                <div class="entity-dropdown-item-icon">
+                    ${typeIcons[result.type] || typeIcons.klubb}
+                </div>
+                <div class="entity-dropdown-item-content">
+                    <div class="entity-dropdown-item-name">${highlightMatch(result.name, query)}</div>
+                    <div class="entity-dropdown-item-sublabel">${result.subLabel}</div>
+                </div>
+                <span class="entity-type-chip">${typeLabels[result.type] || result.type}</span>
             </a>
-        </div>
+        `).join('');
+    }
+    
+    // Show/hide dropdown
+    function showDropdown() {
+        dropdown.classList.add('visible');
+        container.setAttribute('aria-expanded', 'true');
+    }
+    
+    function hideDropdown() {
+        dropdown.classList.remove('visible');
+        container.setAttribute('aria-expanded', 'false');
+        activeIndex = -1;
+    }
+    
+    // Show/hide spinner
+    function showSpinner() {
+        spinner.classList.add('visible');
+    }
+    
+    function hideSpinner() {
+        spinner.classList.remove('visible');
+    }
+    
+    // Mock search (fallback)
+    function mockSearch(query) {
+        const q = query.toLowerCase();
+        return MOCK_DATA.filter(item => 
+            item.name.toLowerCase().includes(q) || 
+            item.subLabel.toLowerCase().includes(q)
+        ).slice(0, 8);
+    }
+    
+    // API search
+    async function apiSearch(query) {
+        // Check cache first
+        if (searchCache.has(query)) {
+            return searchCache.get(query);
+        }
         
-        <p class="mt-8 text-sm opacity-75" style="color: var(--color-krem);">
-            Eller se en demo: 
-            <a href="<?php echo home_url('/stott/heimdal-if/handball-g09/ola-nordmann/'); ?>" 
-               class="underline hover:no-underline" style="color: var(--color-krem);">
-                Støtt Ola Nordmann →
-            </a>
-        </p>
-    </div>
-</section>
+        try {
+            const response = await fetch(`${API_ENDPOINT}?q=${encodeURIComponent(query)}&limit=8`);
+            
+            if (!response.ok) {
+                throw new Error('API error');
+            }
+            
+            const data = await response.json();
+            const results = data.results || [];
+            
+            // Cache result
+            if (searchCache.size >= MAX_CACHE_SIZE) {
+                const firstKey = searchCache.keys().next().value;
+                searchCache.delete(firstKey);
+            }
+            searchCache.set(query, results);
+            
+            return results;
+        } catch (error) {
+            console.warn('Entity search API error, using mock data:', error);
+            useMockData = true;
+            return mockSearch(query);
+        }
+    }
+    
+    // Perform search
+    async function performSearch(query) {
+        if (query.length < MIN_CHARS) {
+            hideDropdown();
+            return;
+        }
+        
+        showSpinner();
+        
+        let results;
+        if (useMockData) {
+            results = mockSearch(query);
+        } else {
+            results = await apiSearch(query);
+        }
+        
+        hideSpinner();
+        currentResults = results;
+        activeIndex = -1;
+        renderResults(results, query);
+        showDropdown();
+    }
+    
+    // Debounced search
+    function debouncedSearch(query) {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => performSearch(query), DEBOUNCE_MS);
+    }
+    
+    // Navigate to result
+    function navigateToResult(index) {
+        if (index >= 0 && index < currentResults.length) {
+            window.location.href = currentResults[index].url;
+        }
+    }
+    
+    // Update active item
+    function updateActiveItem(newIndex) {
+        if (currentResults.length === 0) return;
+        
+        activeIndex = newIndex;
+        if (activeIndex < 0) activeIndex = currentResults.length - 1;
+        if (activeIndex >= currentResults.length) activeIndex = 0;
+        
+        const items = dropdown.querySelectorAll('.entity-dropdown-item');
+        items.forEach((item, i) => {
+            item.classList.toggle('active', i === activeIndex);
+            item.setAttribute('aria-selected', i === activeIndex);
+        });
+    }
+    
+    // Event: Input
+    input.addEventListener('input', (e) => {
+        debouncedSearch(e.target.value.trim());
+    });
+    
+    // Event: Focus
+    input.addEventListener('focus', () => {
+        if (input.value.length >= MIN_CHARS && currentResults.length > 0) {
+            showDropdown();
+        }
+    });
+    
+    // Event: Keyboard
+    input.addEventListener('keydown', (e) => {
+        switch (e.key) {
+            case 'ArrowDown':
+                e.preventDefault();
+                if (!dropdown.classList.contains('visible') && input.value.length >= MIN_CHARS) {
+                    performSearch(input.value.trim());
+                } else {
+                    updateActiveItem(activeIndex + 1);
+                }
+                break;
+                
+            case 'ArrowUp':
+                e.preventDefault();
+                updateActiveItem(activeIndex - 1);
+                break;
+                
+            case 'Enter':
+                e.preventDefault();
+                if (activeIndex >= 0) {
+                    navigateToResult(activeIndex);
+                }
+                break;
+                
+            case 'Escape':
+                hideDropdown();
+                input.blur();
+                break;
+        }
+    });
+    
+    // Event: Click outside
+    document.addEventListener('click', (e) => {
+        if (!container.contains(e.target)) {
+            hideDropdown();
+        }
+    });
+    
+    // Event: Mouse over items
+    dropdown.addEventListener('mouseover', (e) => {
+        const item = e.target.closest('.entity-dropdown-item');
+        if (item) {
+            const index = parseInt(item.dataset.index, 10);
+            if (!isNaN(index)) {
+                updateActiveItem(index);
+            }
+        }
+    });
+})();
+</script>
 
-<?php get_footer(); ?>
+<?php // Note: We don't call get_footer() here since we have our own footer ?>

@@ -23,8 +23,12 @@ class MetaFlow {
         // Order item meta
         add_action('woocommerce_checkout_create_order_line_item', [$this, 'add_order_line_item_meta'], 10, 4);
         
-        // Order meta
-        add_action('woocommerce_checkout_create_order', [$this, 'add_order_meta'], 10, 2);
+        // Order meta - use multiple hooks to ensure we catch it
+        add_action('woocommerce_checkout_create_order', [$this, 'add_order_meta'], 20, 2);
+        
+        // Also hook into order created (block checkout compatibility)
+        add_action('woocommerce_checkout_order_created', [$this, 'sync_order_meta_from_items'], 10, 1);
+        add_action('woocommerce_store_api_checkout_order_processed', [$this, 'sync_order_meta_from_items'], 10, 1);
         
         // Subscription meta (when subscription is created from order)
         add_action('woocommerce_subscriptions_created_subscription', [$this, 'add_subscription_meta'], 10, 2);
@@ -36,6 +40,60 @@ class MetaFlow {
         // Display meta on order details (customer view)
         add_filter('woocommerce_order_item_display_meta_key', [$this, 'customize_meta_display_key'], 10, 3);
         add_filter('woocommerce_order_item_display_meta_value', [$this, 'customize_meta_display_value'], 10, 3);
+    }
+    
+    /**
+     * Sync order meta from line items after order is fully created
+     * This is needed for block-based checkout compatibility
+     *
+     * @param \WC_Order $order Order object
+     */
+    public function sync_order_meta_from_items(\WC_Order $order): void {
+        error_log('MinSponsor MetaFlow: sync_order_meta_from_items called for order ' . $order->get_id());
+        
+        // Check if we already have the meta
+        if ($order->get_meta('_minsponsor_player_name') || 
+            $order->get_meta('_minsponsor_team_name') || 
+            $order->get_meta('_minsponsor_club_name')) {
+            error_log('MinSponsor MetaFlow: Order already has minsponsor meta, skipping');
+            return;
+        }
+        
+        $minsponsor_items = [];
+        
+        foreach ($order->get_items() as $item_id => $item) {
+            $minsponsor_data = [];
+            
+            // Get meta from the item
+            foreach ($item->get_meta_data() as $meta_item) {
+                $key = $meta_item->key;
+                if (str_starts_with($key, 'minsponsor_')) {
+                    $minsponsor_data[$key] = $meta_item->value;
+                    error_log('MinSponsor MetaFlow: Found item meta ' . $key . ' = ' . $meta_item->value);
+                }
+            }
+            
+            if (!empty($minsponsor_data)) {
+                $minsponsor_items[$item_id] = $minsponsor_data;
+            }
+        }
+        
+        if (!empty($minsponsor_items)) {
+            // Store aggregated data on order
+            $order->update_meta_data('_minsponsor_items', $minsponsor_items);
+            
+            // Store first item's data as main order meta for easy access
+            $first_item = reset($minsponsor_items);
+            foreach ($first_item as $key => $value) {
+                $order->update_meta_data('_' . $key, $value);
+                error_log('MinSponsor MetaFlow: Setting order meta _' . $key . ' = ' . $value);
+            }
+            
+            $order->save();
+            error_log('MinSponsor MetaFlow: Order meta saved successfully');
+        } else {
+            error_log('MinSponsor MetaFlow: No minsponsor items found in order items');
+        }
     }
     
     /**
@@ -86,16 +144,21 @@ class MetaFlow {
      * @param array $data Checkout data
      */
     public function add_order_meta(\WC_Order $order, array $data): void {
+        error_log('MinSponsor MetaFlow: add_order_meta called for order ' . $order->get_id());
+        
         $minsponsor_items = [];
         
         foreach ($order->get_items() as $item_id => $item) {
             $meta = $item->get_meta_data();
             $minsponsor_data = [];
             
+            error_log('MinSponsor MetaFlow: Checking order item ' . $item_id);
+            
             foreach ($meta as $meta_item) {
                 $key = $meta_item->key;
                 if (str_starts_with($key, 'minsponsor_')) {
                     $minsponsor_data[$key] = $meta_item->value;
+                    error_log('MinSponsor MetaFlow: Found meta ' . $key . ' = ' . $meta_item->value);
                 }
             }
             
@@ -103,6 +166,8 @@ class MetaFlow {
                 $minsponsor_items[$item_id] = $minsponsor_data;
             }
         }
+        
+        error_log('MinSponsor MetaFlow: Total minsponsor items found: ' . count($minsponsor_items));
         
         if (!empty($minsponsor_items)) {
             // Store aggregated data on order
@@ -112,9 +177,13 @@ class MetaFlow {
             $first_item = reset($minsponsor_items);
             foreach ($first_item as $key => $value) {
                 $order->update_meta_data('_' . $key, $value);
+                error_log('MinSponsor MetaFlow: Setting order meta _' . $key . ' = ' . $value);
             }
             
             $order->save_meta_data();
+            error_log('MinSponsor MetaFlow: Order meta saved');
+        } else {
+            error_log('MinSponsor MetaFlow: No minsponsor items found in order items');
         }
     }
     
@@ -218,6 +287,7 @@ class MetaFlow {
     
     /**
      * Customize meta key display for customers
+     * Returns false to completely hide meta from customer view
      *
      * @param string $display_key Display key
      * @param \WC_Meta_Data $meta Meta data object
@@ -227,6 +297,16 @@ class MetaFlow {
     public function customize_meta_display_key(string $display_key, \WC_Meta_Data $meta, \WC_Order_Item $item): string|false {
         $key = $meta->key;
         
+        // On the thank you page and customer order view, hide ALL MinSponsor meta
+        // since we display it in a custom format via StripeCustomerPortal
+        if (!is_admin()) {
+            // Hide all minsponsor_ prefixed keys from customer view
+            if (str_starts_with($key, 'minsponsor_')) {
+                return false;
+            }
+        }
+        
+        // For admin view, show nice labels
         $labels = [
             'minsponsor_player_name' => 'Spiller',
             'minsponsor_team_name' => 'Lag',
@@ -240,7 +320,7 @@ class MetaFlow {
             return $labels[$key];
         }
         
-        // Hide internal IDs and slugs from customer view
+        // Hide internal IDs and slugs from admin view too
         $hidden_keys = [
             'minsponsor_club_id',
             'minsponsor_club_slug',
@@ -252,7 +332,7 @@ class MetaFlow {
         ];
         
         if (in_array($key, $hidden_keys, true)) {
-            return false; // This will hide the meta from customer view
+            return false;
         }
         
         return $display_key;

@@ -59,6 +59,10 @@ add_action('init', 'spons_cleanup_head');
  * MINSPONSOR IMPLEMENTATION
  * ===========================*/
 
+// Initialize Entity Search API
+require_once get_template_directory() . '/includes/Api/EntitySearch.php';
+\MinSponsor\Api\EntitySearch::init();
+
 /**
  * Register all MinSponsor content types, taxonomies, and rewrite rules
  * 
@@ -217,6 +221,13 @@ function minsponsor_register_taxonomy_idrettsgren() {
  * @since 1.0.0
  */
 function minsponsor_add_rewrite_rules() {
+    // Base /stott/ URL - shows all entities
+    add_rewrite_rule(
+        '^stott/?$',
+        'index.php?pagename=stott',
+        'top'
+    );
+    
     add_rewrite_rule(
         '^stott/([^/]+)/([^/]+)/([^/]+)/?$',
         'index.php?post_type=spiller&name=$matches[3]&klubb_slug=$matches[1]&lag_slug=$matches[2]',
