@@ -144,7 +144,7 @@ box-shadow: 0 4px 20px rgba(61, 50, 40, 0.08);  /* --shadow-warm */
 - Sponsor pays: amount + 10% fee (e.g., 110 kr for 100 kr sponsorship)
 - Distribution: 100% to recipient, 4% to Stripe, 6% to Samhold AS
 - Sponsorship is level-specific: money to a player stays with player, team with team, club with club (no automatic distribution down hierarchy)
-- Payment gateways: Stripe AND Vipps/MobilePay Recurring (both required from start)
+- Payment gateway: Stripe (Vipps/MobilePay Recurring planned for later)
 
 ## Architecture
 
@@ -195,7 +195,7 @@ Currently: 50, 100, 200, 300 kr (flexible amounts planned for later)
 ### WooCommerce Integration Pattern
 - Check gateway availability before initializing (see `StripeMeta::is_stripe_available()`)
 - Use standard WooCommerce email templates (add MinSponsor data, don't create custom templates)
-- Both Stripe and Vipps/MobilePay Recurring must work from launch
+- Stripe must work before launch (Vipps/MobilePay planned for later)
 
 ### ACF Field Groups
 JSON sync enabled in `acf-json/`. Field groups define parent relationships for CPTs.
@@ -236,10 +236,16 @@ CSS source: `src/style.css` → Output: `dist/style.css`
 ## Current Priority
 1. Frontend display of clubs/teams/players (Gutenberg blocks later)
 2. Stripe integration that actually works
-3. Vipps/MobilePay Recurring integration
+3. Entity search/autocomplete on landing page
+
+## Stripe Connect (KRITISK)
+Se `docs/stripe-connect-spec.md` for fullstendig spesifikasjon av:
+- Express-konto per lag (ikke klubb)
+- Routing-regler for lag vs utøver
+- Gebyrberegning (på toppen av sponsbeløp)
+- Onboarding-flow
 
 ## Future Features (not yet implemented)
-- Stripe Connect for automatic payout distribution to clubs
 - Club admin self-service dashboards
 - Player profile management
 - Flexible custom amounts
@@ -254,5 +260,5 @@ CSS source: `src/style.css` → Output: `dist/style.css`
 ## Dependencies
 - WordPress, WooCommerce, WooCommerce Subscriptions
 - ACF (Advanced Custom Fields) for parent relationship fields
-- Stripe gateway + Vipps Recurring for payments
+- Stripe gateway for payments
 - Tailwind CSS 3.4+
