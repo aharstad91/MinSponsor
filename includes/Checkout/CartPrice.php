@@ -10,6 +10,8 @@
 
 namespace MinSponsor\Checkout;
 
+use MinSponsor\Services\FeeCalculator;
+
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -37,6 +39,9 @@ class CartPrice {
     
     /**
      * Apply dynamic pricing to cart items
+     * 
+     * Calculates total price including fees using FeeCalculator.
+     * Sponsor pays: sponsor_amount + platform_fee + stripe_fee
      *
      * @param \WC_Cart $cart Cart object
      */
@@ -54,14 +59,18 @@ class CartPrice {
                 continue;
             }
             
-            $custom_amount = isset($cart_item['minsponsor_amount']) ? $cart_item['minsponsor_amount'] : null;
+            $sponsor_amount = isset($cart_item['minsponsor_amount']) ? (float) $cart_item['minsponsor_amount'] : null;
             
-            if ($custom_amount && is_numeric($custom_amount) && $custom_amount > 0) {
-                $cart_item['data']->set_price((float) $custom_amount);
+            if ($sponsor_amount && $sponsor_amount > 0) {
+                // Calculate total including fees
+                $calculation = FeeCalculator::calculate($sponsor_amount);
+                $total_price = $calculation['total'];
+                
+                $cart_item['data']->set_price($total_price);
                 
                 // For subscription products, also set the subscription price
                 if ($this->is_subscription_product($cart_item['data'])) {
-                    $this->set_subscription_price($cart_item['data'], (float) $custom_amount);
+                    $this->set_subscription_price($cart_item['data'], $total_price);
                 }
             }
         }
@@ -291,11 +300,30 @@ class CartPrice {
             }
         }
         
+        // Add fee breakdown
+        $sponsor_amount = isset($cart_item['minsponsor_amount']) ? (float) $cart_item['minsponsor_amount'] : null;
+        if ($sponsor_amount && $sponsor_amount > 0) {
+            $calculation = FeeCalculator::calculate($sponsor_amount);
+            $fee_amount = $calculation['total'] - $sponsor_amount;
+            
+            $item_data[] = [
+                'key' => 'Sponsbeløp',
+                'value' => wc_price($sponsor_amount),
+            ];
+            
+            $item_data[] = [
+                'key' => 'Transaksjonsgebyr',
+                'value' => wc_price($fee_amount),
+            ];
+        }
+        
         return $item_data;
     }
     
     /**
      * Customize cart item price display
+     * 
+     * Shows total including fees.
      *
      * @param string $price Price HTML
      * @param array $cart_item Cart item data
@@ -307,11 +335,13 @@ class CartPrice {
             return $price;
         }
         
-        $custom_amount = isset($cart_item['minsponsor_amount']) ? $cart_item['minsponsor_amount'] : null;
+        $sponsor_amount = isset($cart_item['minsponsor_amount']) ? (float) $cart_item['minsponsor_amount'] : null;
         $interval = isset($cart_item['minsponsor_interval']) ? $cart_item['minsponsor_interval'] : '';
         
-        if ($custom_amount && is_numeric($custom_amount) && $custom_amount > 0) {
-            $formatted_price = wc_price($custom_amount);
+        if ($sponsor_amount && $sponsor_amount > 0) {
+            // Calculate total with fees
+            $calculation = FeeCalculator::calculate($sponsor_amount);
+            $formatted_price = wc_price($calculation['total']);
             
             if ($interval === 'month' && $this->is_subscription_product($cart_item['data'])) {
                 $formatted_price .= ' <small>/mnd</small>';
@@ -325,6 +355,8 @@ class CartPrice {
     
     /**
      * Validate cart items
+     * 
+     * Checks that recipients exist and their team has active Stripe Connect.
      */
     public function validate_cart_items(): void {
         foreach (\WC()->cart->get_cart() as $cart_item_key => $cart_item) {
@@ -337,7 +369,7 @@ class CartPrice {
             if ($player_id) {
                 $player = get_post($player_id);
                 if (!$player || $player->post_status !== 'publish' || $player->post_type !== 'spiller') {
-                    wc_add_notice('Spilleren du prøver å støtte er ikke lenger tilgjengelig.', 'error');
+                    wc_add_notice(__('The player you are trying to support is no longer available.', 'minsponsor'), 'error');
                     \WC()->cart->remove_cart_item($cart_item_key);
                     continue;
                 }
@@ -346,9 +378,82 @@ class CartPrice {
             // Validate amount
             $amount = isset($cart_item['minsponsor_amount']) ? $cart_item['minsponsor_amount'] : null;
             if ($amount && (!is_numeric($amount) || $amount <= 0)) {
-                wc_add_notice('Ugyldig støttebeløp. Produktet er fjernet fra handlekurven.', 'error');
+                wc_add_notice(__('Invalid sponsorship amount. The product has been removed from your cart.', 'minsponsor'), 'error');
+                \WC()->cart->remove_cart_item($cart_item_key);
+                continue;
+            }
+            
+            // Validate Stripe Connect status for recipient's team
+            $stripe_valid = $this->validate_stripe_status($cart_item);
+            if (!$stripe_valid['is_valid']) {
+                wc_add_notice($stripe_valid['message'], 'error');
                 \WC()->cart->remove_cart_item($cart_item_key);
             }
         }
+    }
+    
+    /**
+     * Validate Stripe Connect status for a cart item's recipient
+     *
+     * @param array $cart_item Cart item data
+     * @return array{is_valid: bool, message: string}
+     */
+    private function validate_stripe_status(array $cart_item): array {
+        $recipient_type = $cart_item['minsponsor_recipient_type'] ?? 'spiller';
+        $lag_id = null;
+        $lag_name = null;
+        
+        switch ($recipient_type) {
+            case 'spiller':
+                // Get parent lag from player
+                $player_id = $cart_item['minsponsor_player_id'] ?? null;
+                if ($player_id) {
+                    $lag_id = minsponsor_get_parent_lag_id($player_id);
+                }
+                break;
+                
+            case 'lag':
+                $lag_id = $cart_item['minsponsor_team_id'] ?? null;
+                break;
+                
+            case 'klubb':
+                // Klubb sponsorship - currently allowed without Stripe
+                return ['is_valid' => true, 'message' => ''];
+        }
+        
+        // If no lag found, cannot process payment
+        if (!$lag_id) {
+            return [
+                'is_valid' => false,
+                'message' => __('This recipient cannot receive payments at this time.', 'minsponsor'),
+            ];
+        }
+        
+        // Check if LagStripeMetaBox class exists
+        if (!class_exists('\\MinSponsor\\Admin\\LagStripeMetaBox')) {
+            // If class not loaded, allow through (dev mode fallback)
+            return ['is_valid' => true, 'message' => ''];
+        }
+        
+        $lag_name = get_the_title($lag_id);
+        $stripe_status = \MinSponsor\Admin\LagStripeMetaBox::get_stripe_status($lag_id);
+        
+        if (!$stripe_status['is_ready']) {
+            $status_text = $stripe_status['status'] === 'pending' 
+                ? __('is still setting up payment processing', 'minsponsor')
+                : __('has not set up payment processing yet', 'minsponsor');
+            
+            return [
+                'is_valid' => false,
+                'message' => sprintf(
+                    /* translators: %1$s: team name, %2$s: status message */
+                    __('%1$s %2$s. Please try again later.', 'minsponsor'),
+                    $lag_name,
+                    $status_text
+                ),
+            ];
+        }
+        
+        return ['is_valid' => true, 'message' => ''];
     }
 }

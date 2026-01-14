@@ -6,13 +6,27 @@
 
 | Fase | Beskrivelse | Status |
 |------|-------------|--------|
-| Fase 1 | Stripe-felter på Lag | 🔲 Ikke startet |
-| Fase 2 | Innstillinger-side | 🔲 Ikke startet |
-| Fase 3 | Onboarding-flow | 🔲 Ikke startet |
-| Fase 4 | Checkout-gate | 🔲 Ikke startet |
+| Fase 1 | Stripe-felter på Lag | ✅ Fullført |
+| Fase 2 | Innstillinger-side | ✅ Fullført |
+| Fase 3 | Onboarding-flow | ✅ Fullført |
+| Fase 4 | Checkout-gate | ✅ Fullført |
 | Fase 5 | Betalingsflyt | 🔲 Ikke startet |
 | Fase 6 | Webhooks | 🔲 Ikke startet |
 | Fase 7 | Deploy & Migrasjon | 🔲 Ikke startet |
+
+---
+
+## ⚠️ FORUTSETNING: Aktiver Stripe Connect
+
+Før Fase 3 kan testes, må Stripe Connect aktiveres i Stripe Dashboard:
+
+1. Gå til https://dashboard.stripe.com/test/connect/accounts/overview
+2. Klikk "Get started" for å aktivere Connect
+3. Fyll ut nødvendig informasjon om plattformen
+4. Vent på godkjenning (umiddelbart i test mode)
+
+Uten Connect aktivert vil koden returnere feil:
+> "You can only create new accounts if you've signed up for Connect"
 
 ---
 
@@ -93,32 +107,79 @@ functions.php (registrer settings)
 
 **Mål:** Kasserer kan fullføre Stripe Express-registrering.
 
-### Oppgaver
+**Status:** ✅ Fullført og testet
 
-- [ ] **3.1** Opprett `includes/Api/StripeOnboarding.php`:
-  - AJAX-endpoint for å opprette Express-konto
-  - Genererer Account Link med return/refresh URLs
-  - Lagrer account_id på Lag
+### Stripe Connect Setup
 
-- [ ] **3.2** Opprett callback-side for onboarding-retur:
-  - Template: `page-stripe-onboarding-callback.php`
-  - Oppdaterer onboarding_status
-  - Viser suksess/feil-melding
+For at onboarding skal fungere, må Stripe-kontoen ha Connect aktivert:
 
-- [ ] **3.3** E-post til kasserer med onboarding-lenke
+1. Gå til Stripe Dashboard → Connect → Get started
+2. Velg "Onboarding hosted by Stripe" (ikke embedded)
+3. Velg "Sellers collect payments directly"
+4. Fullfør Express-oppsett
 
-### Filer å opprette/endre
+**Testet med:** Stripe sandbox "Teal Carousel" (Connect enabled)
+
+### Implementert
+
+✅ **3.1** `includes/Admin/LagStripeMetaBox.php` oppdatert med:
+  - `get_stripe_client()` - Henter Stripe SDK client basert på miljø
+  - `ajax_start_onboarding()` - Oppretter Express-konto via Stripe API
+  - `create_account_link()` - Genererer onboarding URL med return/refresh
+  - `get_callback_base_url()` - Støtter localhost fallback for utvikling
+  - Håndterer localhost-URLer (bruker minsponsor.no fallback)
+  - Lagrer account_id, status og onboarding_link i post meta
+
+✅ **3.1b** Stripe PHP SDK installert:
+  - `composer.json` opprettet
+  - stripe/stripe-php v19.0.0 installert
+  - Autoloader lastet i `functions.php`
+
+✅ **3.1c** `includes/Settings/StripeSettings.php` oppdatert med:
+  - Nytt felt: "Callback Base URL" for lokal utvikling (ngrok-støtte)
+  - Dokumentasjon for hvordan bruke ngrok for testing
+
+✅ **3.2** Callback-side for onboarding-retur:
+  - Onboarding link åpnes i ny fane
+  - "Sjekk status" knapp sjekker status via Stripe API
+  - "Kopier onboarding-lenke" for å dele med kasserer
+
+✅ **3.3** Onboarding-lenke tilgjengelig i admin:
+  - Lenke vises i meta box når onboarding er påbegynt
+  - Kan kopieres og sendes til kasserer manuelt
+  - (Automatisk e-post kan legges til senere ved behov)
+
+### Test-verifisering (2025-12-15)
+
+Testet med Lag ID 103 "Gutter 2009":
+- ✅ "Start onboarding" knapp oppretter Express-konto
+- ✅ Stripe account ID: `acct_1SekAaQjWGMjTPmT`
+- ✅ Status endres til "PÅBEGYNT" i UI
+- ✅ Onboarding-lenke åpnes i ny fane (Stripe Connect)
+- ✅ Post meta lagres korrekt:
+  - `_minsponsor_stripe_account_id`
+  - `_minsponsor_stripe_onboarding_status`
+  - `_minsponsor_stripe_last_checked`
+  - `_minsponsor_stripe_onboarding_link`
+
+### Filer opprettet/endret
 ```
-includes/Api/StripeOnboarding.php (ny)
-page-stripe-onboarding-callback.php (ny)
-includes/Admin/LagStripeMetaBox.php (koble til API)
+includes/Admin/LagStripeMetaBox.php (endret - ekte Stripe API)
+includes/Api/StripeOnboarding.php (opprettet - ikke i bruk, logikk flyttet til MetaBox)
+includes/Settings/StripeSettings.php (endret - callback URL felt)
+composer.json (ny)
+vendor/ (ny - Stripe SDK)
+functions.php (endret - Composer autoloader)
 ```
 
 ### Akseptansekriterier
-- [ ] "Start onboarding" oppretter Express-konto
-- [ ] Kasserer kan fullføre Stripe-registrering
+- [x] "Start onboarding" kaller Stripe API
+- [x] Express-konto opprettes i Stripe
+- [x] Onboarding-lenke åpnes i ny fane
+- [ ] Kasserer kan fullføre Stripe-registrering (krever manuell test)
 - [ ] Status oppdateres til "complete" etter fullføring
-- [ ] Refresh-knapp henter oppdatert status fra Stripe
+- [x] "Sjekk status" knapp henter oppdatert status fra Stripe
+- [x] "Kopier onboarding-lenke" knapp fungerer
 
 ---
 

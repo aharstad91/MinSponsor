@@ -128,17 +128,17 @@ jQuery(document).ready(function($) {
                            icon + ' ' + typeLabel + ': ' + response.data.message + '</div>';
                 
                 if (response.success && response.data.product_name) {
-                    html += '<div style="color: #666; font-size: 12px;">Produkt: ' + response.data.product_name + '</div>';
+                    html += '<div style="color: #666; font-size: 12px;">Product: ' + response.data.product_name + '</div>';
                 }
                 
                 results.html(results.html() + html);
             },
             error: function() {
-                results.html(results.html() + '<div style="color: #dc3232;">AJAX-feil oppstod</div>');
+                results.html(results.html() + '<div style="color: #dc3232;">AJAX error occurred</div>');
             },
             complete: function() {
                 button.prop('disabled', false);
-                button.text(productType === 'one_time' ? 'Test engangsprodukt' : 'Test månedlig produkt');
+                button.text(productType === 'one_time' ? 'Test one-time product' : 'Test monthly product');
             }
         });
     });
@@ -180,7 +180,7 @@ JS;
         if (!$product_id) {
             return [
                 'valid' => false,
-                'message' => 'Ugyldig produkt-ID'
+                'message' => 'Invalid product ID'
             ];
         }
         
@@ -189,14 +189,14 @@ JS;
         if (!$product) {
             return [
                 'valid' => false,
-                'message' => 'Produktet finnes ikke'
+                'message' => 'Product does not exist'
             ];
         }
         
         if ($product->get_status() !== 'publish') {
             return [
                 'valid' => false,
-                'message' => 'Produktet er ikke publisert'
+                'message' => 'Product is not published'
             ];
         }
         
@@ -206,20 +206,20 @@ JS;
         if ($expected_type === 'one_time' && $is_subscription) {
             return [
                 'valid' => false,
-                'message' => 'Engangsprodukt kan ikke være et abonnement'
+                'message' => 'One-time product cannot be a subscription'
             ];
         }
         
         if ($expected_type === 'monthly' && !$is_subscription) {
             return [
                 'valid' => false,
-                'message' => 'Månedlig produkt må være et abonnement'
+                'message' => 'Monthly product must be a subscription'
             ];
         }
         
         return [
             'valid' => true,
-            'message' => 'Produktet er gyldig',
+            'message' => 'Product is valid',
             'product_name' => $product->get_name(),
             'product_price' => wc_price($product->get_price()),
             'is_subscription' => $is_subscription
@@ -233,7 +233,7 @@ JS;
      * @return array Product options
      */
     public static function get_product_options(string $type = 'all'): array {
-        $options = ['' => 'Velg produkt...'];
+        $options = ['' => 'Select product...'];
         
         // Use WooCommerce's proper product query
         $args = [
@@ -258,7 +258,7 @@ JS;
                 $price_text = $price ? ' (' . wc_price($price) . ')' : '';
                 $type_label = '';
                 if ($product->is_type('subscription') || $product->is_type('variable-subscription')) {
-                    $type_label = ' [abonnement]';
+                    $type_label = ' [subscription]';
                 }
                 // Use string key for WooCommerce select compatibility
                 $options[(string) $product->get_id()] = $product->get_name() . $price_text . $type_label;
@@ -292,15 +292,15 @@ class PlayerProductsSettingsPage extends \WC_Settings_Page {
     public function get_settings(): array {
         $settings = [
             [
-                'title' => __('MinSponsor - Spillerstøtte', 'minsponsor'),
+                'title' => __('MinSponsor - Player Support', 'minsponsor'),
                 'type' => 'title',
-                'desc' => __('Konfigurer produkter for spillerstøtte.', 'minsponsor'),
+                'desc' => __('Configure products for player sponsorship.', 'minsponsor'),
                 'id' => 'minsponsor_player_products_options'
             ],
             
             [
-                'title' => __('Engangsprodukt', 'minsponsor'),
-                'desc' => __('Velg hvilket produkt som skal brukes for engangsstøtte til spillere. Dette må være et vanlig (simple) produkt.', 'minsponsor'),
+                'title' => __('One-time Product', 'minsponsor'),
+                'desc' => __('Select which product to use for one-time player sponsorship. This must be a simple product.', 'minsponsor'),
                 'id' => 'minsponsor_player_product_one_time_id',
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
@@ -313,8 +313,8 @@ class PlayerProductsSettingsPage extends \WC_Settings_Page {
             ],
             
             [
-                'title' => __('Månedlig abonnement', 'minsponsor'),
-                'desc' => __('Velg hvilket abonnementsprodukt som skal brukes for månedlig støtte til spillere. Dette må være et abonnementsprodukt.', 'minsponsor'),
+                'title' => __('Monthly Subscription', 'minsponsor'),
+                'desc' => __('Select which subscription product to use for monthly player sponsorship. This must be a subscription product.', 'minsponsor'),
                 'id' => 'minsponsor_player_product_monthly_id',
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
@@ -332,11 +332,11 @@ class PlayerProductsSettingsPage extends \WC_Settings_Page {
             ],
             
             [
-                'title' => __('Fallback-produkter (SKU)', 'minsponsor'),
+                'title' => __('Fallback Products (SKU)', 'minsponsor'),
                 'type' => 'title',
-                'desc' => __('Hvis produktene ovenfor ikke er satt, vil systemet automatisk lete etter produkter med disse SKU-ene:', 'minsponsor') . 
-                         '<br><strong>Engang:</strong> <code>minsponsor_player_one_time</code>' .
-                         '<br><strong>Månedlig:</strong> <code>minsponsor_player_monthly</code>',
+                'desc' => __('If the products above are not set, the system will automatically search for products with these SKUs:', 'minsponsor') . 
+                         '<br><strong>One-time:</strong> <code>minsponsor_player_one_time</code>' .
+                         '<br><strong>Monthly:</strong> <code>minsponsor_player_monthly</code>',
                 'id' => 'minsponsor_fallback_info'
             ],
             
@@ -346,9 +346,9 @@ class PlayerProductsSettingsPage extends \WC_Settings_Page {
             ],
             
             [
-                'title' => __('Validering', 'minsponsor'),
+                'title' => __('Validation', 'minsponsor'),
                 'type' => 'title',
-                'desc' => __('Test at produktkonfigurasjonen fungerer som forventet.', 'minsponsor'),
+                'desc' => __('Test that the product configuration works as expected.', 'minsponsor'),
                 'id' => 'minsponsor_validation'
             ],
         ];

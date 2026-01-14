@@ -11,6 +11,7 @@
 namespace MinSponsor\Frontend;
 
 use MinSponsor\Services\PlayerLinksService;
+use MinSponsor\Admin\LagStripeMetaBox;
 
 if (!defined('ABSPATH')) {
     exit;
@@ -57,6 +58,13 @@ class PlayerRoute {
         
         // Validate and sanitize parameters
         $params = $this->links_service->validate_link_params($_GET);
+        
+        // Check if the recipient's team has an active Stripe account
+        $stripe_check = $this->check_stripe_status($post);
+        if (!$stripe_check['can_receive']) {
+            $this->show_stripe_not_connected_error($post, $stripe_check);
+            return;
+        }
         
         // Get player products (used for all types currently)
         $one_time_product_id = $this->get_player_product_id('one_time');
@@ -231,5 +239,127 @@ class PlayerRoute {
             echo '<strong>Feil:</strong> ' . esc_html($error_message);
             echo '</div>';
         }
+    }
+    
+    /**
+     * Check if the recipient's team has an active Stripe Connect account
+     *
+     * Stripe accounts are at the lag (team) level. For spillere, we check their parent lag.
+     * For klubb, we currently don't require Stripe (money goes to platform).
+     *
+     * @param \WP_Post $post The recipient post (klubb, lag, or spiller)
+     * @return array{can_receive: bool, lag_id: int|null, lag_name: string|null, status: string}
+     */
+    private function check_stripe_status(\WP_Post $post): array {
+        $lag_id = null;
+        $lag_name = null;
+        
+        switch ($post->post_type) {
+            case 'spiller':
+                // Get parent lag for spiller
+                $lag_id = minsponsor_get_parent_lag_id($post->ID);
+                if ($lag_id) {
+                    $lag_name = get_the_title($lag_id);
+                }
+                break;
+                
+            case 'lag':
+                // Direct lag sponsorship
+                $lag_id = $post->ID;
+                $lag_name = $post->post_title;
+                break;
+                
+            case 'klubb':
+                // Klubb sponsorship - for now, allow without Stripe
+                // In the future, klubb might need its own Stripe or use a default
+                return [
+                    'can_receive' => true,
+                    'lag_id' => null,
+                    'lag_name' => null,
+                    'status' => 'klubb_allowed',
+                ];
+        }
+        
+        // If we couldn't find a lag, block the transaction
+        if (!$lag_id) {
+            return [
+                'can_receive' => false,
+                'lag_id' => null,
+                'lag_name' => null,
+                'status' => 'no_lag_found',
+            ];
+        }
+        
+        // Check Stripe status for the lag
+        $stripe_status = LagStripeMetaBox::get_stripe_status($lag_id);
+        
+        return [
+            'can_receive' => $stripe_status['is_ready'],
+            'lag_id' => $lag_id,
+            'lag_name' => $lag_name,
+            'status' => $stripe_status['status'],
+        ];
+    }
+    
+    /**
+     * Show error page when Stripe is not connected
+     *
+     * @param \WP_Post $post The recipient post
+     * @param array $stripe_check The result from check_stripe_status
+     */
+    private function show_stripe_not_connected_error(\WP_Post $post, array $stripe_check): void {
+        // Store error info for template
+        set_query_var('minsponsor_stripe_error', [
+            'recipient_type' => $post->post_type,
+            'recipient_name' => $post->post_title,
+            'recipient_url' => get_permalink($post),
+            'lag_id' => $stripe_check['lag_id'],
+            'lag_name' => $stripe_check['lag_name'],
+            'status' => $stripe_check['status'],
+        ]);
+        
+        // Load error template
+        $template = locate_template('templates/stripe-not-connected.php');
+        if ($template) {
+            include $template;
+        } else {
+            // Fallback inline error
+            $this->render_fallback_stripe_error($post, $stripe_check);
+        }
+        exit;
+    }
+    
+    /**
+     * Render fallback error if template is missing
+     *
+     * @param \WP_Post $post The recipient post
+     * @param array $stripe_check The result from check_stripe_status
+     */
+    private function render_fallback_stripe_error(\WP_Post $post, array $stripe_check): void {
+        get_header();
+        ?>
+        <div style="max-width: 600px; margin: 80px auto; padding: 40px; text-align: center; font-family: Inter, sans-serif;">
+            <div style="font-size: 64px; margin-bottom: 20px;">😢</div>
+            <h1 style="color: #3D3228; font-size: 28px; margin-bottom: 16px;">
+                Kan ikke motta støtte ennå
+            </h1>
+            <p style="color: #666; font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+                <?php if ($stripe_check['status'] === 'no_lag_found'): ?>
+                    Denne utøveren er ikke tilknyttet et lag som kan motta betalinger.
+                <?php elseif ($stripe_check['status'] === 'pending'): ?>
+                    <strong><?php echo esc_html($stripe_check['lag_name']); ?></strong> 
+                    holder på å sette opp betalingsmottak. Prøv igjen senere!
+                <?php else: ?>
+                    <strong><?php echo esc_html($stripe_check['lag_name']); ?></strong> 
+                    har ikke satt opp betalingsmottak ennå.
+                <?php endif; ?>
+            </p>
+            <a href="<?php echo esc_url(get_permalink($post)); ?>" 
+               style="display: inline-block; background: #D97757; color: #FBF8F3; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                ← Tilbake
+            </a>
+        </div>
+        <?php
+        get_footer();
     }
 }

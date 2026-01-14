@@ -2,7 +2,7 @@
 /**
  * Entity Search REST API Endpoint
  * 
- * GitHub-lignende typeahead/autocomplete for klubb/lag/utøver
+ * GitHub-style typeahead/autocomplete for klubb/lag/spiller (club/team/player)
  * 
  * @package MinSponsor
  */

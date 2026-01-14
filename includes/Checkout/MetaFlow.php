@@ -372,13 +372,30 @@ class MetaFlow {
         $metadata = [];
         
         // Get MinSponsor data from order
+        $club_id = $order->get_meta('_minsponsor_club_id');
         $club_name = $order->get_meta('_minsponsor_club_name');
+        $team_id = $order->get_meta('_minsponsor_team_id');
         $team_name = $order->get_meta('_minsponsor_team_name');
+        $player_id = $order->get_meta('_minsponsor_player_id');
         $player_name = $order->get_meta('_minsponsor_player_name');
         $amount = $order->get_meta('_minsponsor_amount');
         $interval = $order->get_meta('_minsponsor_interval');
         $ref = $order->get_meta('_minsponsor_ref');
         
+        // Add entity IDs for Stripe Connect routing
+        if ($club_id) {
+            $metadata['org_id'] = $club_id;
+        }
+        
+        if ($team_id) {
+            $metadata['group_id'] = $team_id;
+        }
+        
+        if ($player_id) {
+            $metadata['singular_id'] = $player_id;
+        }
+        
+        // Add human-readable names
         if ($club_name) {
             $metadata['club'] = $club_name;
         }
@@ -392,7 +409,7 @@ class MetaFlow {
         }
         
         if ($amount) {
-            $metadata['amount'] = $amount;
+            $metadata['minsponsor_amount'] = $amount;
         }
         
         if ($interval) {

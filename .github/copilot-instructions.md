@@ -227,7 +227,14 @@ CSS source: `src/style.css` → Output: `dist/style.css`
 - Content sync: WP All Import/Export or similar plugin for database migration
 
 ## Conventions
-- Norwegian labels in admin UI (Klubb, Lag, Spiller, etc.)
+
+### Language Policy
+- **Code, comments, variable names, class names:** Always English
+- **Admin UI (wp-admin):** English for error messages, labels, descriptions
+- **Frontend UI (customer-facing):** Norwegian for all user-visible text
+- **CPT names/slugs:** Norwegian (klubb, lag, spiller) - these are part of URL structure
+
+### Code Style
 - All rewrite rules registered in `minsponsor_add_rewrite_rules()`
 - After adding new rewrite rules: flush with `flush_rewrite_rules()` or visit Permalinks settings
 - WooCommerce product settings stored as `minsponsor_player_product_one_time_id` and `minsponsor_player_product_monthly_id` options
