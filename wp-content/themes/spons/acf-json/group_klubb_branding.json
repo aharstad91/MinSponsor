@@ -1,0 +1,133 @@
+{
+    "key": "group_klubb_branding",
+    "title": "Klubb – Profil og branding",
+    "fields": [
+        {
+            "key": "field_klubb_logo",
+            "label": "Klubblogo",
+            "name": "klubb_logo",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Last opp klubbens logo. Anbefalt størrelse: 200x200 piksler, kvadratisk format.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "2",
+            "mime_types": "jpg, jpeg, png, svg, webp"
+        },
+        {
+            "key": "field_klubb_farge",
+            "label": "Primærfarge",
+            "name": "klubb_farge",
+            "aria-label": "",
+            "type": "color_picker",
+            "instructions": "Velg klubbens primærfarge (valgfritt). Brukes som accent i kortvisninger.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "enable_opacity": 0,
+            "return_format": "string"
+        },
+        {
+            "key": "field_klubb_beskrivelse",
+            "label": "Kort beskrivelse",
+            "name": "klubb_beskrivelse",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "En kort og engasjerende beskrivelse av klubben (2-3 setninger). Vises på støttesiden.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "F.eks: Heimdal IF er en breddeklubb med over 500 aktive utøvere. Vi jobber for at alle barn og unge skal få oppleve gleden ved idrett.",
+            "maxlength": 300,
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_klubb_pengene_brukes_til",
+            "label": "Hva pengene brukes til",
+            "name": "klubb_pengene_brukes_til",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Beskriv hva støtten går til. Bruk komma for å skille flere formål.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Treningsavgift, cuper, utstyr, reisekostnader",
+            "prepend": "",
+            "append": "",
+            "maxlength": 200
+        },
+        {
+            "key": "field_klubb_hero_bilde",
+            "label": "Hero-bilde",
+            "name": "klubb_hero_bilde",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Stort bilde som vises i toppen av støttesiden. Anbefalt størrelse: 1200x600 piksler.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "5",
+            "mime_types": "jpg, jpeg, png, webp"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "klubb"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Profil, beskrivelse og branding for klubb.",
+    "show_in_rest": 0,
+    "modified": 1736899200
+}

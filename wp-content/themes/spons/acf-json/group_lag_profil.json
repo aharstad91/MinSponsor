@@ -1,0 +1,112 @@
+{
+    "key": "group_lag_profil",
+    "title": "Lag – Profil og beskrivelse",
+    "fields": [
+        {
+            "key": "field_lag_beskrivelse",
+            "label": "Kort beskrivelse",
+            "name": "lag_beskrivelse",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "En kort og engasjerende beskrivelse av laget (2-3 setninger). Vises på støttesiden.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "F.eks: Vi er et ivrig gjeng på 15 spillere som elsker håndball! I år satser vi på å kvalifisere oss til regionsmesterskapet.",
+            "maxlength": 300,
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_lag_pengene_brukes_til",
+            "label": "Hva pengene brukes til",
+            "name": "lag_pengene_brukes_til",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Beskriv hva støtten går til. Bruk komma for å skille flere formål.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Treningsavgift, cuper, utstyr, reisekostnader",
+            "prepend": "",
+            "append": "",
+            "maxlength": 200
+        },
+        {
+            "key": "field_lag_hero_bilde",
+            "label": "Lagbilde",
+            "name": "lag_hero_bilde",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Bilde av laget som vises i toppen av støttesiden. Anbefalt størrelse: 1200x600 piksler.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "5",
+            "mime_types": "jpg, jpeg, png, webp"
+        },
+        {
+            "key": "field_lag_antall_spillere",
+            "label": "Antall spillere",
+            "name": "lag_antall_spillere",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Hvor mange spillere er på laget? (valgfritt)",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "15",
+            "prepend": "",
+            "append": "spillere",
+            "min": 1,
+            "max": 100,
+            "step": 1
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "lag"
+            }
+        ]
+    ],
+    "menu_order": 5,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Profil og beskrivelse for lag.",
+    "show_in_rest": 0,
+    "modified": 1736899200
+}
