@@ -1,0 +1,87 @@
+{
+    "key": "group_klubb_beskrivelse",
+    "title": "Klubb – Beskrivelse og kontekst",
+    "fields": [
+        {
+            "key": "field_klubb_kort_beskrivelse",
+            "label": "Kort beskrivelse",
+            "name": "kort_beskrivelse",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "2-3 setninger som beskriver klubben og hva den betyr for lokalsamfunnet.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "F.eks: Heimdal IF er en breddeklubb med over 500 aktive utøvere fra 6 til 80 år. Vi tilbyr fotball, håndball og friidrett i et inkluderende miljø.",
+            "maxlength": 300,
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_klubb_pengebruk",
+            "label": "Hva pengene brukes til",
+            "name": "pengebruk",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Kort liste over hva støtten går til, f.eks: Treningsavgift, cuper, utstyr",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Treningsavgift, cuper, utstyr",
+            "prepend": "",
+            "append": "",
+            "maxlength": 150
+        },
+        {
+            "key": "field_klubb_antall_spillere",
+            "label": "Antall aktive utøvere",
+            "name": "antall_spillere",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Omtrentlig antall aktive medlemmer/utøvere i klubben.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "350",
+            "prepend": "",
+            "append": "utøvere",
+            "min": 0,
+            "max": "",
+            "step": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "klubb"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Tilleggsinformasjon som vises på støttesiden for å gi kontekst og motivere til støtte.",
+    "show_in_rest": 0,
+    "modified": 1736889732
+}

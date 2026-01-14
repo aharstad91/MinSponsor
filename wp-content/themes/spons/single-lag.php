@@ -42,7 +42,7 @@ $spiller_count = $spiller_query->found_posts;
 // Support amounts
 $amounts = [50, 100, 200, 300];
 $base_url = home_url('/stott/' . $klubb_slug . '/' . $lag_slug . '/');
-$share_url = get_permalink();
+$share_url = get_permalink($lag_id);
 
 // Get sport
 $terms = get_the_terms($lag_id, 'idrettsgren');
@@ -441,8 +441,11 @@ $sport_name = ($terms && !is_wp_error($terms)) ? $terms[0]->name : '';
                         Støtt <?php echo esc_html($lag_name); ?>
                     </h2>
 
-                    <p class="text-center mb-8" style="color: var(--color-brun-light);">
-                        Din støtte gjør en forskjell. 100% av beløpet går direkte til laget.
+                    <p class="text-center mb-6" style="color: var(--color-brun-light);">
+                        Laget mottar hele støttebeløpet du velger.
+                    </p>
+                    <p class="text-center text-sm mb-10" style="color: var(--color-brun-light); opacity: 0.8;">
+                        En liten plattformavgift (10%) legges på toppen av beløpet.
                     </p>
 
                     <!-- Monthly support (primary - show first) -->
@@ -495,7 +498,7 @@ $sport_name = ($terms && !is_wp_error($terms)) ? $terms[0]->name : '';
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-terrakotta);">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                 </svg>
-                <span>100% til laget</span>
+                <span>Full støtte til laget</span>
             </div>
             <div class="flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-terrakotta);">

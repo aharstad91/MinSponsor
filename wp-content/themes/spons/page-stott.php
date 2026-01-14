@@ -45,15 +45,20 @@ function minsponsor_get_supporter_count($entity_type, $entity_id) {
 ?>
 
 <style>
+    /* Page-stott specific styles
+       Gjenbrukbare komponenter er nå i src/style.css:
+       - .entity-card, .icon-container, .badge-terrakotta
+       Sidespecifikke stiler nedenfor: */
+
     .entity-list-section {
         background-color: var(--color-beige);
-        padding: 40px 24px 100px;
+        padding: var(--spacing-section) var(--spacing-lg) 100px;
     }
 
     .entity-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-        gap: 20px;
+        gap: var(--spacing-lg);
     }
 
     /* Club cards - featured with logo */
@@ -270,7 +275,7 @@ function minsponsor_get_supporter_count($entity_type, $entity_id) {
 
     .hero-mini {
         background-color: var(--color-beige);
-        padding: 60px 24px 32px;
+        padding: var(--spacing-section) var(--spacing-lg) var(--spacing-xl);
         text-align: center;
     }
 
@@ -278,7 +283,7 @@ function minsponsor_get_supporter_count($entity_type, $entity_id) {
         font-size: 36px;
         font-weight: 700;
         color: var(--color-brun);
-        margin-bottom: 12px;
+        margin-bottom: var(--spacing-md);
     }
 
     .hero-mini p {
@@ -286,7 +291,7 @@ function minsponsor_get_supporter_count($entity_type, $entity_id) {
         color: var(--color-brun);
         opacity: 0.75;
         max-width: 460px;
-        margin: 0 auto 28px;
+        margin: 0 auto var(--spacing-xl);
     }
 
     /* Search in hero */

@@ -3,84 +3,154 @@
 @tailwind utilities;
 
 /* ===========================================
-   MinSponsor Designsystem - CSS Variables
+   MinSponsor Designsystem v1.0
+
+   Dokumentasjon: themes/spons/docs/design-system.md
    =========================================== */
 
 @layer base {
   :root {
-    /* Primærfarger */
+    /* =====================
+       FARGER / COLORS
+       ===================== */
+
+    /* Primærfarger - Korall (varm, vennlig) */
     --color-korall: #F6A586;
     --color-korall-light: #F9C4B0;
     --color-korall-dark: #D97757;
-    
-    /* Bakgrunner */
-    --color-beige: #F5EFE6;
-    --color-krem: #FBF8F3;
-    --color-softgra: #E8E2D9;
-    
-    /* Tekst & detaljer */
-    --color-brun: #3D3228;
-    --color-brun-light: #5A4D3F;
-    
-    /* Sekundær & aksent */
-    --color-terrakotta: #D97757;
-    --color-terrakotta-dark: #B85D42;
-    --color-gul: #F4C85E;
-    
-    /* Aliaser */
+
+    /* Bakgrunnsfarger */
+    --color-beige: #F5EFE6;       /* Hovedbakgrunn */
+    --color-krem: #FBF8F3;        /* Kort/seksjonsbakgrunn */
+    --color-softgra: #E8E2D9;     /* Subtile borders/dividers */
+
+    /* Tekstfarger */
+    --color-brun: #3D3228;        /* Primær tekst */
+    --color-brun-light: #5A4D3F;  /* Sekundær/muted tekst */
+
+    /* Handlingsfarger (CTA) */
+    --color-terrakotta: #D97757;       /* Primær CTA */
+    --color-terrakotta-dark: #B85D42;  /* CTA hover */
+
+    /* Aksentfarger */
+    --color-gul: #F4C85E;         /* Suksess/feiring */
+    --color-success: #4CAF50;     /* Grønn suksess */
+    --color-error: #E53935;       /* Feilmelding */
+
+    /* Semantiske aliaser */
     --color-primary: var(--color-korall);
     --color-cta: var(--color-terrakotta);
     --color-text: var(--color-brun);
+    --color-text-muted: var(--color-brun-light);
     --color-background: var(--color-beige);
-    --color-cream: var(--color-krem);
-    --color-grey: var(--color-softgra);
-    
-    /* Typografi */
+    --color-surface: var(--color-krem);
+    --color-border: var(--color-softgra);
+
+    /* =====================
+       TYPOGRAFI / TYPOGRAPHY
+       ===================== */
     --font-heading: 'Inter', 'DM Sans', sans-serif;
     --font-body: 'Inter', 'Source Sans Pro', sans-serif;
-    
-    /* Border radius */
+
+    /* Heading størrelser (desktop) */
+    --text-h1: 48px;
+    --text-h1-hero: 56px;  /* Kun for hero-seksjoner */
+    --text-h2: 36px;
+    --text-h2-section: 48px;  /* Kun for seksjonsoverskrifter */
+    --text-h3: 28px;
+    --text-h4: 20px;
+    --text-body: 16px;
+    --text-body-lg: 18px;
+    --text-small: 14px;
+    --text-xs: 12px;
+
+    /* =====================
+       BORDER RADIUS
+       ===================== */
+    --radius-xs: 4px;
     --radius-sm: 8px;
     --radius-md: 16px;
     --radius-lg: 24px;
-    
-    /* Spacing (base: 8px) */
+    --radius-full: 9999px;
+
+    /* =====================
+       SPACING (8px grid)
+       ===================== */
     --spacing-unit: 8px;
-    --spacing-xs: 4px;
-    --spacing-sm: 8px;
-    --spacing-md: 16px;
-    --spacing-lg: 24px;
-    --spacing-xl: 32px;
-    --spacing-2xl: 48px;
+    --spacing-xs: 4px;      /* 0.5x */
+    --spacing-sm: 8px;      /* 1x */
+    --spacing-md: 16px;     /* 2x */
+    --spacing-lg: 24px;     /* 3x */
+    --spacing-xl: 32px;     /* 4x */
+    --spacing-2xl: 48px;    /* 6x */
+    --spacing-3xl: 64px;    /* 8x */
     --spacing-section: 80px;
     --spacing-section-lg: 120px;
-    
-    /* Shadows */
+
+    /* =====================
+       SHADOWS
+       ===================== */
+    --shadow-warm-sm: 0 2px 10px rgba(61, 50, 40, 0.06);
     --shadow-warm: 0 4px 20px rgba(61, 50, 40, 0.08);
     --shadow-warm-lg: 0 8px 30px rgba(61, 50, 40, 0.12);
-    --shadow-warm-sm: 0 2px 10px rgba(61, 50, 40, 0.06);
+    --shadow-warm-xl: 0 12px 40px rgba(61, 50, 40, 0.15);
+
+    /* =====================
+       TRANSITIONS
+       ===================== */
+    --transition-fast: 150ms ease;
+    --transition-normal: 200ms ease;
+    --transition-slow: 300ms ease;
   }
-  
-  /* Base typography */
+
+  /* =====================
+     BASE TYPOGRAPHY
+     ===================== */
   html {
     font-family: var(--font-body);
     color: var(--color-text);
-    background-color: var(--color-beige);
+    background-color: var(--color-background);
   }
-  
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
     color: var(--color-brun);
   }
-  
-  h1 { font-size: 48px; font-weight: 700; line-height: 1.2; }
-  h2 { font-size: 36px; font-weight: 600; line-height: 1.3; }
-  h3 { font-size: 28px; font-weight: 600; line-height: 1.4; }
-  h4 { font-size: 20px; font-weight: 500; line-height: 1.5; }
-  
+
+  h1 {
+    font-size: var(--text-h1);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+  h2 {
+    font-size: var(--text-h2);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  h3 {
+    font-size: var(--text-h3);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  h4 {
+    font-size: var(--text-h4);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
   body {
-    font-size: 16px;
+    font-size: var(--text-body);
     line-height: 1.7;
+  }
+
+  /* Prose/innholdstekst */
+  .prose {
+    color: var(--color-text-muted);
+    max-width: 65ch;
+  }
+
+  .prose p {
+    margin-bottom: 1em;
   }
 }
 
@@ -89,104 +159,410 @@
    =========================================== */
 
 @layer components {
-  /* Primærknapp (CTA) */
+
+  /* =====================
+     KNAPPER / BUTTONS
+     ===================== */
+
+  /* Primærknapp (CTA) - terrakotta, brukes for hovedhandlinger */
   .btn-primary {
-    @apply font-semibold transition-all duration-200;
+    @apply font-semibold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background-color: var(--color-cta);
     color: var(--color-krem);
     border-radius: var(--radius-sm);
     padding: 14px 32px;
-    font-size: 16px;
+    font-size: var(--text-body);
     box-shadow: var(--shadow-warm-sm);
+    transition: all var(--transition-normal);
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
   }
-  
+
   .btn-primary:hover {
     background-color: var(--color-terrakotta-dark);
     transform: translateY(-1px);
     box-shadow: var(--shadow-warm);
   }
-  
-  /* Sekundærknapp */
+
+  .btn-primary:focus {
+    outline: 3px solid var(--color-terrakotta);
+    outline-offset: 2px;
+  }
+
+  /* Sekundærknapp - outline versjon */
   .btn-secondary {
-    @apply font-semibold transition-all duration-200;
+    @apply font-semibold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     background-color: transparent;
     border: 2px solid var(--color-terrakotta);
     color: var(--color-terrakotta);
     border-radius: var(--radius-sm);
     padding: 12px 30px;
-    font-size: 16px;
+    font-size: var(--text-body);
+    transition: all var(--transition-normal);
+    text-decoration: none;
+    cursor: pointer;
   }
-  
+
   .btn-secondary:hover {
     background-color: var(--color-terrakotta);
     color: var(--color-krem);
   }
-  
-  /* Kort/Card */
+
+  .btn-secondary:focus {
+    outline: 3px solid var(--color-terrakotta);
+    outline-offset: 2px;
+  }
+
+  /* Hero CTA - større, pill-formet knapp for hero-seksjoner */
+  .btn-cta {
+    @apply font-bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-cta);
+    color: white;
+    font-size: var(--text-body-lg);
+    padding: 20px 40px;
+    border-radius: var(--radius-full);
+    box-shadow: 0 4px 20px rgba(217, 119, 87, 0.3);
+    transition: all var(--transition-normal);
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-cta:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 25px rgba(217, 119, 87, 0.4);
+  }
+
+  .btn-cta:focus {
+    outline: 3px solid var(--color-terrakotta);
+    outline-offset: 4px;
+  }
+
+  /* =====================
+     KORT / CARDS
+     ===================== */
+
+  /* Standard kort */
   .card {
-    background-color: var(--color-krem);
+    background-color: var(--color-surface);
     border-radius: var(--radius-md);
     padding: var(--spacing-lg);
     box-shadow: var(--shadow-warm);
   }
-  
+
+  /* Stort kort (for hovedinnhold) */
   .card-lg {
-    background-color: var(--color-krem);
+    background-color: var(--color-surface);
     border-radius: var(--radius-lg);
     padding: var(--spacing-xl);
     box-shadow: var(--shadow-warm);
   }
-  
-  /* Input-felter */
+
+  /* Glass-kort (semi-transparent) */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-warm);
+    transition: all var(--transition-slow);
+  }
+
+  .glass-card:hover {
+    box-shadow: var(--shadow-warm-lg);
+    transform: translateY(-2px);
+  }
+
+  /* Klikkbart glass-kort */
+  a.glass-card {
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  a.glass-card:focus {
+    outline: 3px solid var(--color-terrakotta);
+    outline-offset: 4px;
+  }
+
+  /* Entity-kort (for klubb/lag/spiller lister) */
+  .entity-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    text-decoration: none;
+    transition: all var(--transition-normal);
+    display: block;
+  }
+
+  .entity-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-warm-xl);
+  }
+
+  .entity-card:focus {
+    outline: 3px solid var(--color-terrakotta);
+    outline-offset: 4px;
+  }
+
+  /* =====================
+     BLOB-IKONER
+     ===================== */
+
+  /* Ikon-container med korall bakgrunn */
+  .blob-icon {
+    width: 64px;
+    height: 64px;
+    background-color: var(--color-korall);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .blob-icon svg {
+    width: 32px;
+    height: 32px;
+    color: var(--color-brun);
+  }
+
+  /* Rotasjonsvarianter for visuell interesse */
+  .blob-icon.rotate-left {
+    transform: rotate(-6deg);
+  }
+
+  .blob-icon.rotate-right {
+    transform: rotate(3deg);
+  }
+
+  .blob-icon.rotate-slight {
+    transform: rotate(-3deg);
+  }
+
+  /* Mindre ikon-container (for lister) */
+  .icon-container {
+    width: 48px;
+    height: 48px;
+    background: var(--color-korall);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-container svg {
+    width: 24px;
+    height: 24px;
+    color: var(--color-brun);
+  }
+
+  /* =====================
+     STEG/PROSESS
+     ===================== */
+
+  /* Trinn-sirkel */
+  .step-circle {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    background: white;
+    border: 4px solid var(--color-korall);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: 700;
+    color: var(--color-brun);
+    margin-bottom: var(--spacing-lg);
+    box-shadow: var(--shadow-warm-sm);
+    transition: transform var(--transition-normal);
+  }
+
+  .step-circle:hover,
+  .step-item:hover .step-circle {
+    transform: scale(1.1);
+  }
+
+  /* Fylt variant (aktiv/ferdig) */
+  .step-circle.filled {
+    background: var(--color-korall);
+    color: white;
+    border-color: var(--color-korall);
+    box-shadow: 0 4px 15px rgba(246, 165, 134, 0.4);
+  }
+
+  /* =====================
+     INPUT-FELTER
+     ===================== */
+
   .input-field {
-    background-color: var(--color-krem);
-    border: 1px solid var(--color-softgra);
+    width: 100%;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-sm);
     padding: 14px 18px;
-    font-size: 16px;
-    color: var(--color-brun);
-    transition: border-color 0.2s ease;
+    font-size: var(--text-body);
+    color: var(--color-text);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   }
-  
+
+  .input-field::placeholder {
+    color: var(--color-text-muted);
+    opacity: 0.6;
+  }
+
   .input-field:focus {
     outline: none;
     border-color: var(--color-terrakotta);
     box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.1);
   }
-  
-  /* Seksjonsbakgrunner */
+
+  /* Pill-formet søkefelt */
+  .search-input {
+    width: 100%;
+    padding: 18px 24px 18px 56px;
+    font-size: var(--text-body-lg);
+    border: 2px solid transparent;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-warm-lg);
+    color: var(--color-text);
+    transition: all var(--transition-normal);
+  }
+
+  .search-input::placeholder {
+    color: var(--color-text);
+    opacity: 0.5;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: var(--color-terrakotta);
+    box-shadow: 0 4px 25px rgba(217, 119, 87, 0.25);
+  }
+
+  /* =====================
+     BADGES/CHIPS
+     ===================== */
+
+  .badge {
+    display: inline-block;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-terrakotta {
+    background: rgba(217, 119, 87, 0.15);
+    color: var(--color-terrakotta);
+  }
+
+  .badge-korall {
+    background: rgba(246, 165, 134, 0.2);
+    color: var(--color-brun);
+  }
+
+  /* =====================
+     TRUST SIGNALS
+     ===================== */
+
+  .trust-signal {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: var(--text-small);
+    color: var(--color-text-muted);
+  }
+
+  .trust-signal svg {
+    width: 20px;
+    height: 20px;
+    color: var(--color-terrakotta);
+    flex-shrink: 0;
+  }
+
+  /* =====================
+     GRADIENT HEADER
+     ===================== */
+
+  .gradient-header {
+    background: linear-gradient(135deg, var(--color-korall) 0%, var(--color-terrakotta) 100%);
+    color: var(--color-krem);
+  }
+
+  .gradient-header h1,
+  .gradient-header h2,
+  .gradient-header h3 {
+    color: var(--color-krem);
+  }
+
+  /* =====================
+     SEKSJONER
+     ===================== */
+
   .section-beige {
     background-color: var(--color-beige);
   }
-  
+
   .section-cream {
     background-color: var(--color-krem);
   }
-  
-  /* Trust signals / Ikoner */
-  .icon-korall {
-    color: var(--color-korall);
+
+  .section-glass {
+    background: rgba(255, 255, 255, 0.4);
   }
-  
-  .icon-terrakotta {
-    color: var(--color-terrakotta);
-  }
-  
-  /* Divider */
-  .divider {
-    border-color: var(--color-softgra);
-  }
-  
-  /* Text utilities */
+
+  /* =====================
+     UTILITIES
+     ===================== */
+
+  /* Tekst */
   .text-warm {
     color: var(--color-brun);
   }
-  
+
   .text-muted {
-    color: var(--color-brun-light);
+    color: var(--color-text-muted);
   }
-  
-  /* Celebration/Success elements */
+
+  .text-cta {
+    color: var(--color-terrakotta);
+  }
+
+  /* Ikon-farger */
+  .icon-korall {
+    color: var(--color-korall);
+  }
+
+  .icon-terrakotta {
+    color: var(--color-terrakotta);
+  }
+
+  /* Divider */
+  .divider {
+    border-color: var(--color-border);
+  }
+
+  /* Celebration/Success */
   .celebration {
     color: var(--color-gul);
   }

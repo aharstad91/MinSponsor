@@ -1,0 +1,112 @@
+{
+    "key": "group_lag_beskrivelse",
+    "title": "Lag – Beskrivelse og kontekst",
+    "fields": [
+        {
+            "key": "field_lag_kort_beskrivelse",
+            "label": "Kort beskrivelse",
+            "name": "kort_beskrivelse",
+            "aria-label": "",
+            "type": "textarea",
+            "instructions": "2-3 setninger som beskriver laget og hva støtten betyr for dem.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "F.eks: Gutter 2009 er et aktivt håndballag med 18 glade gutter. Vi trener to ganger i uka og deltar på cuper i hele regionen.",
+            "maxlength": 300,
+            "rows": 3,
+            "new_lines": ""
+        },
+        {
+            "key": "field_lag_pengebruk",
+            "label": "Hva pengene brukes til",
+            "name": "pengebruk",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Kort liste over hva støtten går til, f.eks: Treningsavgift, cuper, utstyr",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Treningsavgift, cuper, utstyr",
+            "prepend": "",
+            "append": "",
+            "maxlength": 150
+        },
+        {
+            "key": "field_lag_antall_spillere",
+            "label": "Antall spillere",
+            "name": "antall_spillere",
+            "aria-label": "",
+            "type": "number",
+            "instructions": "Antall aktive spillere på laget.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "50",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "18",
+            "prepend": "",
+            "append": "spillere",
+            "min": 0,
+            "max": "",
+            "step": ""
+        },
+        {
+            "key": "field_lag_hero_bilde",
+            "label": "Hero-bilde (lagbilde)",
+            "name": "hero_bilde",
+            "aria-label": "",
+            "type": "image",
+            "instructions": "Last opp et lagbilde som vises som bakgrunn i hero-seksjonen. Bruk gjerne et bilde av hele laget.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "return_format": "array",
+            "preview_size": "medium",
+            "library": "all",
+            "min_width": "",
+            "min_height": "",
+            "min_size": "",
+            "max_width": "",
+            "max_height": "",
+            "max_size": "",
+            "mime_types": "jpg, jpeg, png, webp"
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "lag"
+            }
+        ]
+    ],
+    "menu_order": 1,
+    "position": "normal",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Tilleggsinformasjon som vises på støttesiden for å gi kontekst og motivere til støtte.",
+    "show_in_rest": 0,
+    "modified": 1736889732
+}
