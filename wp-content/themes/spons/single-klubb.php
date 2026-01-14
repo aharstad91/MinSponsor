@@ -1,7 +1,7 @@
 <?php
 /**
  * Template for single klubb (club)
- * 
+ *
  * Design: MinSponsor Designsystem
  * - Varm korall (#F6A586) som hovedfarge
  * - Terrakotta (#D97757) for CTAs
@@ -12,6 +12,11 @@ get_header();
 $klubb_id = get_the_ID();
 $klubb_name = get_the_title();
 $klubb_slug = get_post_field('post_name', $klubb_id);
+
+// Get ACF fields
+$kort_beskrivelse = get_field('kort_beskrivelse', $klubb_id);
+$pengebruk = get_field('pengebruk', $klubb_id);
+$antall_spillere = get_field('antall_spillere', $klubb_id);
 
 // Get all lag (teams) for this klubb
 $lag_query = new WP_Query([
@@ -26,38 +31,75 @@ $lag_query = new WP_Query([
 // Support amounts
 $amounts = [50, 100, 200, 300];
 $base_url = home_url('/stott/' . $klubb_slug . '/');
+$share_url = get_permalink($klubb_id);
 ?>
 
 <main class="min-h-screen" style="background-color: var(--color-beige);">
     <div class="max-w-3xl mx-auto px-4 py-12">
-        
+
+        <!-- Breadcrumb -->
+        <nav class="mb-8 text-sm" style="color: var(--color-brun-light);">
+            <a href="<?php echo home_url('/stott/'); ?>" class="hover:underline" style="color: var(--color-terrakotta);">
+                MinSponsor
+            </a>
+            <span class="mx-2 opacity-50">›</span>
+            <span><?php echo esc_html($klubb_name); ?></span>
+        </nav>
+
         <!-- Club Card -->
         <div class="card-lg overflow-hidden" style="background-color: var(--color-krem); border-radius: var(--radius-lg); box-shadow: var(--shadow-warm);">
-            
+
             <!-- Club Header -->
-            <div class="text-center py-12 px-8" style="background: linear-gradient(135deg, var(--color-korall) 0%, var(--color-terrakotta) 100%);">
+            <div class="text-center py-12 px-8 relative" style="background: linear-gradient(135deg, var(--color-korall) 0%, var(--color-terrakotta) 100%);">
                 <?php if (has_post_thumbnail()): ?>
                     <div class="mb-6">
                         <?php the_post_thumbnail('medium', [
-                            'class' => 'w-32 h-32 object-cover rounded-full mx-auto shadow-lg',
+                            'class' => 'w-40 h-40 object-contain bg-white rounded-2xl mx-auto shadow-lg p-4',
                             'style' => 'border: 4px solid var(--color-krem);'
                         ]); ?>
                     </div>
                 <?php else: ?>
-                    <div class="w-32 h-32 rounded-full mx-auto mb-6 flex items-center justify-center" style="background-color: rgba(255,255,255,0.2); border: 4px solid rgba(255,255,255,0.3);">
-                        <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 24 24" style="color: var(--color-krem);">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    <div class="w-40 h-40 rounded-2xl mx-auto mb-6 flex items-center justify-center" style="background-color: rgba(255,255,255,0.2); border: 4px solid rgba(255,255,255,0.3);">
+                        <svg class="w-20 h-20" fill="currentColor" viewBox="0 0 24 24" style="color: var(--color-krem);">
+                            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                         </svg>
                     </div>
                 <?php endif; ?>
-                
+
                 <h1 class="text-3xl md:text-4xl font-bold mb-3" style="color: var(--color-krem);">
                     <?php echo esc_html($klubb_name); ?>
                 </h1>
+
+                <?php if ($antall_spillere): ?>
+                    <p class="text-sm opacity-80 mt-2" style="color: var(--color-krem);">
+                        <?php echo intval($antall_spillere); ?> aktive utøvere
+                    </p>
+                <?php endif; ?>
             </div>
-            
+
             <!-- Club Content -->
             <div class="p-8 md:p-12">
+
+                <!-- Description Section -->
+                <?php if ($kort_beskrivelse || $pengebruk): ?>
+                    <div class="mb-10 text-center">
+                        <?php if ($kort_beskrivelse): ?>
+                            <p class="text-lg mb-4" style="color: var(--color-brun);">
+                                <?php echo esc_html($kort_beskrivelse); ?>
+                            </p>
+                        <?php endif; ?>
+
+                        <?php if ($pengebruk): ?>
+                            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm" style="background-color: var(--color-beige); color: var(--color-brun-light);">
+                                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-terrakotta);">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span>Støtten går til: <?php echo esc_html($pengebruk); ?></span>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+
                 <?php if (get_the_content()): ?>
                     <div class="prose max-w-none mb-10" style="color: var(--color-brun-light);">
                         <?php the_content(); ?>
@@ -70,8 +112,11 @@ $base_url = home_url('/stott/' . $klubb_slug . '/');
                         Støtt <?php echo esc_html($klubb_name); ?>
                     </h2>
                     
-                    <p class="text-center mb-10" style="color: var(--color-brun-light);">
-                        Vis din støtte med et bidrag. 100% av beløpet går til klubben.
+                    <p class="text-center mb-6" style="color: var(--color-brun-light);">
+                        Klubben mottar hele støttebeløpet du velger.
+                    </p>
+                    <p class="text-center text-sm mb-10" style="color: var(--color-brun-light); opacity: 0.8;">
+                        En liten plattformavgift (10%) legges på toppen av beløpet.
                     </p>
                     
                     <!-- Monthly support (primary - show first) -->
@@ -124,7 +169,7 @@ $base_url = home_url('/stott/' . $klubb_slug . '/');
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-terrakotta);">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                 </svg>
-                <span>100% til klubben</span>
+                <span>Full støtte til klubben</span>
             </div>
             <div class="flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: var(--color-terrakotta);">
@@ -133,7 +178,21 @@ $base_url = home_url('/stott/' . $klubb_slug . '/');
                 <span>Avslutt når som helst</span>
             </div>
         </div>
-        
+
+        <!-- Share Section -->
+        <div class="mt-8 text-center">
+            <button type="button"
+                    onclick="shareUrl('<?php echo esc_js($share_url); ?>', '<?php echo esc_js($klubb_name); ?>')"
+                    class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all hover:scale-105"
+                    style="background-color: var(--color-krem); color: var(--color-brun); border: 1px solid var(--color-softgra);">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                </svg>
+                Del denne siden
+            </button>
+            <p id="share-feedback" class="text-sm mt-2 opacity-0 transition-opacity" style="color: var(--color-terrakotta);"></p>
+        </div>
+
         <!-- Teams List -->
         <?php if ($lag_query->have_posts()): ?>
             <div class="mt-12 p-8" style="background-color: var(--color-krem); border-radius: var(--radius-lg); box-shadow: var(--shadow-warm);">
@@ -175,5 +234,33 @@ $base_url = home_url('/stott/' . $klubb_slug . '/');
         
     </div>
 </main>
+
+<!-- Share functionality -->
+<script>
+function shareUrl(url, title) {
+    const shareData = {
+        title: 'Støtt ' + title,
+        text: 'Bli med å støtte ' + title + ' på MinSponsor!',
+        url: url
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+        navigator.share(shareData).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(url).then(() => {
+            const feedback = document.getElementById('share-feedback');
+            if (feedback) {
+                feedback.textContent = 'Lenke kopiert!';
+                feedback.classList.remove('opacity-0');
+                feedback.classList.add('opacity-100');
+                setTimeout(() => {
+                    feedback.classList.remove('opacity-100');
+                    feedback.classList.add('opacity-0');
+                }, 2000);
+            }
+        });
+    }
+}
+</script>
 
 <?php get_footer(); ?>

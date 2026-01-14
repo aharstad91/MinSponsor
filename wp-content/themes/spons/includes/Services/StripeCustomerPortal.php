@@ -745,7 +745,7 @@ class StripeCustomerPortal {
                     <?php endif; ?>
                 </p>
                 <p class="sub-message">
-                    100% av beløpet går direkte til <?php echo esc_html($recipient_type_text); ?>
+                    <?php echo esc_html(ucfirst($recipient_type_text)); ?> mottar hele støttebeløpet.
                 </p>
             </div>
             

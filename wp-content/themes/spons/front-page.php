@@ -10,147 +10,36 @@ get_header();
 ?>
 
 <style>
-    /* Front page specific styles */
-    .hero-section {
-        background-color: var(--color-beige);
+    /* Front page specific styles
+       Gjenbrukbare komponenter er nå i src/style.css:
+       - .glass-card, .blob-icon, .step-circle, .btn-cta
+       Sidespecifikke stiler nedenfor: */
+
+    /* Hero image sizing */
+    .hero-image {
+        max-width: 280px;
+        margin: 0 auto;
     }
-    
-    /* Blob Icon for feature cards */
-    .blob-icon {
-        width: 64px;
-        height: 64px;
-        background-color: var(--color-korall);
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 24px;
+
+    @media (min-width: 768px) {
+        .hero-image {
+            max-width: 350px;
+        }
     }
-    
-    .blob-icon svg {
-        width: 32px;
-        height: 32px;
-        color: var(--color-brun);
-    }
-    
-    .blob-icon.rotate-left {
-        transform: rotate(-6deg);
-    }
-    
-    .blob-icon.rotate-right {
-        transform: rotate(3deg);
-    }
-    
-    .blob-icon.rotate-slight {
-        transform: rotate(-3deg);
-    }
-    
-    /* Glass cards */
-    .glass-card {
-        background: rgba(255, 255, 255, 0.6);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border-radius: 24px;
-        padding: 32px;
-        box-shadow: 0 4px 20px rgba(61, 50, 40, 0.08);
-        transition: box-shadow 0.3s ease;
-        height: 100%;
-    }
-    
-    .glass-card:hover {
-        box-shadow: 0 8px 30px rgba(61, 50, 40, 0.12);
-        transform: translateY(-2px);
-    }
-    
-    /* Clickable card styles */
-    a.glass-card {
-        display: block;
-        text-decoration: none;
-        cursor: pointer;
-    }
-    
-    a.glass-card:focus {
-        outline: 3px solid var(--color-terrakotta);
-        outline-offset: 4px;
-    }
-    
-    /* Process steps section */
-    .process-section {
-        background: rgba(255, 255, 255, 0.4);
-    }
-    
-    .step-circle {
-        width: 96px;
-        height: 96px;
-        border-radius: 50%;
-        background: white;
-        border: 4px solid var(--color-korall);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 30px;
-        font-weight: 700;
-        margin-bottom: 24px;
-        box-shadow: 0 2px 10px rgba(61, 50, 40, 0.06);
-        transition: transform 0.2s ease;
-    }
-    
-    .step-circle:hover,
-    .step-item:hover .step-circle {
-        transform: scale(1.1);
-    }
-    
-    .step-circle.filled {
-        background: var(--color-korall);
-        color: white;
-        border-color: var(--color-korall);
-        box-shadow: 0 4px 15px rgba(246, 165, 134, 0.4);
-    }
-    
+
+    /* Process step arrow positioning */
     .step-arrow {
         color: rgba(217, 119, 87, 0.4);
         position: absolute;
         top: 32px;
         right: -50%;
     }
-    
-    /* CTA Button */
-    .btn-cta {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        background-color: var(--color-terrakotta);
-        color: white;
-        font-weight: 700;
-        font-size: 20px;
-        padding: 20px 40px;
-        border-radius: 9999px;
-        box-shadow: 0 4px 20px rgba(217, 119, 87, 0.3);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    
-    .btn-cta:hover {
-        transform: scale(1.05);
-        box-shadow: 0 6px 25px rgba(217, 119, 87, 0.4);
-    }
-    
-    /* Hero image */
-    .hero-image {
-        max-width: 280px;
-        margin: 0 auto;
-    }
-    
-    @media (min-width: 768px) {
-        .hero-image {
-            max-width: 350px;
-        }
-    }
-    
-    /* Footer styles */
+
+    /* Footer border */
     .footer-section {
-        border-top: 1px solid #E5DCCA;
+        border-top: 1px solid var(--color-border);
     }
-    
+
     /* Entity Search Styles */
     .entity-search-container {
         position: relative;
@@ -321,42 +210,38 @@ get_header();
 </style>
 
 <!-- 1. HERO SECTION -->
-<header class="hero-section relative pt-12 pb-20 px-6 text-center">
+<header class="hero-section section-beige relative pt-12 pb-20 px-6 text-center">
     <div class="max-w-4xl mx-auto flex flex-col items-center">
-        
-        <h1 class="text-4xl md:text-[56px] font-bold leading-tight mb-8 md:mb-12" style="color: var(--color-brun);">
-            Mer idrett. Mindre dugnad.
+
+        <h1 class="text-4xl md:text-[56px] font-bold leading-tight mb-6" style="color: var(--color-brun);">
+            Støtt lokalidretten – enkelt og trygt
         </h1>
-        
+
+        <p class="text-lg md:text-xl opacity-80 max-w-xl mb-8" style="color: var(--color-brun);">
+            Gi barna mer tid til det de elsker. Ingen produktsalg, bare ren støtte direkte til laget.
+        </p>
+
         <!-- Hero illustration -->
         <div class="hero-image mb-8">
-            <img 
-                src="<?php echo get_template_directory_uri(); ?>/assets/images/minsponsor-characters.png" 
-                alt="To vennlige figurer som holder et hjerte sammen" 
+            <img
+                src="<?php echo get_template_directory_uri(); ?>/assets/images/minsponsor-characters.png"
+                alt="To vennlige figurer som holder et hjerte sammen"
                 class="w-full h-auto drop-shadow-xl"
             />
         </div>
-        
-        <h2 class="text-2xl md:text-[32px] font-bold mb-4" style="color: var(--color-brun);">
-            MinSponsor gjør jobben
-        </h2>
-        
-        <p class="text-lg md:text-xl opacity-80 max-w-lg mb-8" style="color: var(--color-brun);">
-            Stabile inntekter - uten salg, leveranser eller ekstra arbeid
-        </p>
-        
-        <!-- Entity Search -->
-        <div class="entity-search-container w-full mb-6" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-owns="entity-search-results">
+
+        <!-- Entity Search - hovedhandling -->
+        <div class="entity-search-container w-full mb-4" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-owns="entity-search-results">
             <div class="entity-search-icon">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                 </svg>
             </div>
-            <input 
-                type="text" 
+            <input
+                type="text"
                 id="entity-search-input"
                 class="entity-search-input"
-                placeholder="Søk etter klubb, lag eller utøver..."
+                placeholder="Finn klubben eller laget du vil støtte..."
                 aria-autocomplete="list"
                 aria-controls="entity-search-results"
                 autocomplete="off"
@@ -370,67 +255,72 @@ get_header();
                 <!-- Results populated by JS -->
             </div>
         </div>
-        <p class="search-helper-text" id="search-helper-text">
-            Søk på klubb, lag eller utøver — eller 
-            <a href="#kontakt" class="register-team-link" style="color: var(--color-terrakotta); font-weight: 600; text-decoration: underline; text-underline-offset: 2px;">registrer ditt lag</a>
-        </p>
-        
-        <div class="mt-6">
-            <a href="#hvordan" class="text-lg font-medium hover:underline" style="color: var(--color-terrakotta);">
-                Slik fungerer det →
+
+        <!-- Dual CTA -->
+        <div class="flex flex-col md:flex-row gap-4 items-center mt-4 mb-6">
+            <a href="<?php echo home_url('/stott/'); ?>" class="btn-cta">
+                Finn din klubb
+            </a>
+            <a href="#kontakt" class="btn-secondary">
+                Registrer klubb
             </a>
         </div>
+
+        <p class="search-helper-text" id="search-helper-text">
+            Er du klubbleder?
+            <a href="#kontakt" style="color: var(--color-terrakotta); font-weight: 600;">Kom i gang gratis →</a>
+        </p>
     </div>
 </header>
 
 <!-- 2. THREE COLUMNS: "Dette løser vi" -->
-<section id="fordeler" class="py-20 px-6" style="background-color: var(--color-beige);">
+<section id="fordeler" class="py-20 px-6 section-beige">
     <div class="max-w-6xl mx-auto">
         <div class="text-center mb-16">
-            <h2 class="text-3xl md:text-[48px] font-bold mb-4" style="color: var(--color-brun);">Dette løser vi</h2>
-            <p class="text-lg opacity-80" style="color: var(--color-brun);">En enklere hverdag for alle involverte</p>
+            <h2 class="text-3xl md:text-[48px] font-bold mb-4" style="color: var(--color-brun);">Hvorfor MinSponsor?</h2>
+            <p class="text-lg opacity-80" style="color: var(--color-brun);">Enklere for alle – fra deg til laget</p>
         </div>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Card 1: For Klubben -->
-            <a href="#hvordan" class="glass-card flex flex-col items-center text-center">
-                <div class="blob-icon rotate-left">
-                    <!-- Trophy icon -->
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
-                    </svg>
-                </div>
-                <h3 class="text-2xl font-bold mb-4" style="color: var(--color-brun);">For klubben</h3>
-                <p class="text-lg leading-relaxed opacity-85" style="color: var(--color-brun);">
-                    Sikre stabile inntekter uten administrasjon. Vi håndterer alt det praktiske så dere kan fokusere på sporten.
-                </p>
-            </a>
-            
-            <!-- Card 2: For Foreldre (elevated) -->
+            <!-- Card 1: For deg som støtter (elevated - primary audience) -->
             <a href="#hvordan" class="glass-card flex flex-col items-center text-center md:-mt-6">
                 <div class="blob-icon rotate-right">
-                    <!-- Shield icon -->
+                    <!-- Heart icon -->
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                     </svg>
                 </div>
-                <h3 class="text-2xl font-bold mb-4" style="color: var(--color-brun);">For foreldre</h3>
+                <h3 class="text-2xl font-bold mb-4" style="color: var(--color-brun);">For deg som støtter</h3>
                 <p class="text-lg leading-relaxed opacity-85" style="color: var(--color-brun);">
-                    Slipp kakelotteri og dørsalg. Støtt laget gjennom smarte avtaler dere faktisk har bruk for i hverdagen.
+                    Slipp kakelotteri og dørsalg. Gi direkte til laget – enkelt, trygt og uten mas.
                 </p>
             </a>
-            
-            <!-- Card 3: For Barna -->
+
+            <!-- Card 2: For barna -->
             <a href="#hvordan" class="glass-card flex flex-col items-center text-center">
                 <div class="blob-icon rotate-slight">
-                    <!-- Sparkles icon -->
+                    <!-- Star/sparkle icon -->
                     <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
                     </svg>
                 </div>
                 <h3 class="text-2xl font-bold mb-4" style="color: var(--color-brun);">For barna</h3>
                 <p class="text-lg leading-relaxed opacity-85" style="color: var(--color-brun);">
-                    Mer tid til lek og trening. Mindre fokus på inntjening betyr mer glede og samhold i laget.
+                    Mer tid til trening og lek. Mindre fokus på penger betyr mer glede på banen.
+                </p>
+            </a>
+
+            <!-- Card 3: For klubben -->
+            <a href="#hvordan" class="glass-card flex flex-col items-center text-center">
+                <div class="blob-icon rotate-left">
+                    <!-- Users/team icon -->
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <h3 class="text-2xl font-bold mb-4" style="color: var(--color-brun);">For klubben</h3>
+                <p class="text-lg leading-relaxed opacity-85" style="color: var(--color-brun);">
+                    Forutsigbare inntekter uten ekstra arbeid. Vi tar oss av det praktiske.
                 </p>
             </a>
         </div>
@@ -438,13 +328,13 @@ get_header();
 </section>
 
 <!-- 3. PROCESS FLOW: "Slik fungerer det" -->
-<section id="hvordan" class="process-section py-24 px-6">
+<section id="hvordan" class="section-glass py-24 px-6">
     <div class="max-w-7xl mx-auto">
         <div class="text-center mb-20">
             <h2 class="text-3xl md:text-[48px] font-bold mb-4" style="color: var(--color-brun);">Slik fungerer det</h2>
-            <p class="text-lg opacity-80" style="color: var(--color-brun);">Kom i gang på 1-2-3 (og 4)</p>
+            <p class="text-lg opacity-80" style="color: var(--color-brun);">Fire enkle steg – så tikker støtten inn</p>
         </div>
-        
+
         <div class="relative grid grid-cols-1 md:grid-cols-4 gap-8 items-start">
             <!-- Step 1 -->
             <div class="step-item flex flex-col items-center text-center relative z-10">
@@ -454,12 +344,12 @@ get_header();
                     </svg>
                 </div>
                 <div class="step-circle" style="color: var(--color-brun);">1</div>
-                <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Registrer laget</h3>
+                <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Finn laget</h3>
                 <p class="opacity-80 px-2" style="color: var(--color-brun);">
-                    Opprett en konto for laget eller foreningen din helt gratis.
+                    Søk opp klubben eller laget du vil støtte.
                 </p>
             </div>
-            
+
             <!-- Step 2 -->
             <div class="step-item flex flex-col items-center text-center relative">
                 <div class="hidden md:block step-arrow">
@@ -468,12 +358,12 @@ get_header();
                     </svg>
                 </div>
                 <div class="step-circle z-10" style="color: var(--color-brun);">2</div>
-                <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Del lenken</h3>
+                <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Velg beløp</h3>
                 <p class="opacity-80 px-2" style="color: var(--color-brun);">
-                    Send din unike støttelenke til foreldre, familie og venner.
+                    Bestem hvor mye du vil gi – engang eller månedlig.
                 </p>
             </div>
-            
+
             <!-- Step 3 -->
             <div class="step-item flex flex-col items-center text-center relative">
                 <div class="hidden md:block step-arrow">
@@ -482,32 +372,53 @@ get_header();
                     </svg>
                 </div>
                 <div class="step-circle z-10" style="color: var(--color-brun);">3</div>
-                <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Velg beløp</h3>
+                <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Betal trygt</h3>
                 <p class="opacity-80 px-2" style="color: var(--color-brun);">
-                    Supporterne velger hvor mye de vil støtte – engang eller månedlig.
+                    Sikker betaling med Vipps eller kort.
                 </p>
             </div>
-            
+
             <!-- Step 4 -->
             <div class="step-item flex flex-col items-center text-center relative">
                 <div class="step-circle filled z-10">4</div>
-                <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Motta støtte</h3>
+                <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Pengene tikker inn</h3>
                 <p class="opacity-80 px-2" style="color: var(--color-brun);">
-                    Laget får utbetalt 100% av støtten automatisk.
+                    Laget mottar hele støttebeløpet automatisk.
                 </p>
             </div>
         </div>
-        
-        <div class="mt-20 text-center">
-            <a href="#kontakt" class="btn-cta">
-                Start innsamlingen nå
+
+        <!-- Value proposition -->
+        <div class="mt-16 text-center">
+            <p class="text-lg opacity-70 mb-8" style="color: var(--color-brun);">
+                50 kr i måneden = én ekstra treningsøkt for hele laget
+            </p>
+            <a href="<?php echo home_url('/stott/'); ?>" class="btn-cta">
+                Finn din klubb
             </a>
         </div>
     </div>
 </section>
 
+<!-- Demo CTA Banner -->
+<div class="demo-banner py-6 px-6 text-center" style="background: linear-gradient(135deg, var(--color-korall-light) 0%, var(--color-korall) 100%);">
+    <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center gap-4">
+        <p class="text-base font-medium" style="color: var(--color-brun);">
+            Vil du se hvordan det fungerer i praksis?
+        </p>
+        <a href="<?php echo home_url('/stott/heimdal-handball/gutter-2009/'); ?>"
+           class="inline-flex items-center gap-2 px-6 py-3 rounded-full font-semibold transition-all hover:scale-105"
+           style="background: var(--color-brun); color: var(--color-krem);">
+            <span>Se demo: Støtt Gutter 2009</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+            </svg>
+        </a>
+    </div>
+</div>
+
 <!-- Footer -->
-<footer id="kontakt" class="footer-section py-12 px-6 mt-12" style="background-color: var(--color-beige);">
+<footer id="kontakt" class="footer-section py-12 px-6" style="background-color: var(--color-beige);">
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8 text-sm opacity-80" style="color: var(--color-brun);">
         <div class="col-span-1 md:col-span-2">
             <div class="font-bold text-xl mb-4" style="color: var(--color-brun);">MinSponsor</div>
@@ -530,15 +441,6 @@ get_header();
                 <li><a href="mailto:hei@minsponsor.no" class="hover:underline">hei@minsponsor.no</a></li>
                 <li>Trondheim, Norge</li>
             </ul>
-            
-            <!-- Demo link -->
-            <div class="mt-6 pt-4 border-t" style="border-color: #E5DCCA;">
-                <p class="text-xs mb-2 opacity-60">Se en demo:</p>
-                <a href="<?php echo home_url('/stott/heimdal-handball/gutter-2009/'); ?>" 
-                   class="text-sm font-medium hover:underline" style="color: var(--color-terrakotta);">
-                    Støtt Gutter 2009 →
-                </a>
-            </div>
         </div>
     </div>
 </footer>

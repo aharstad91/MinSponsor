@@ -13,9 +13,9 @@
         MinSponsor
     </a>
     <nav class="hidden md:flex gap-8 font-medium text-lg">
-        <a href="<?php echo home_url('/stott/'); ?>" class="hover:opacity-70 transition-opacity no-underline" style="color: var(--color-terrakotta);">Våre lag</a>
-        <a href="<?php echo home_url('/#fordeler'); ?>" class="hover:opacity-70 transition-opacity no-underline" style="color: var(--color-brun);">Fordeler</a>
-        <a href="<?php echo home_url('/#hvordan'); ?>" class="hover:opacity-70 transition-opacity no-underline" style="color: var(--color-brun);">Hvordan det virker</a>
-        <a href="<?php echo home_url('/#kontakt'); ?>" class="hover:opacity-70 transition-opacity no-underline" style="color: var(--color-brun);">Om oss</a>
+        <a href="<?php echo home_url('/stott/'); ?>" class="hover:opacity-70 transition-opacity no-underline" style="color: var(--color-terrakotta);">Finn lag</a>
+        <a href="<?php echo home_url('/om-oss/'); ?>" class="hover:opacity-70 transition-opacity no-underline" style="color: var(--color-brun);">Om oss</a>
+        <a href="<?php echo home_url('/faq/'); ?>" class="hover:opacity-70 transition-opacity no-underline" style="color: var(--color-brun);">FAQ</a>
+        <a href="<?php echo home_url('/#kontakt'); ?>" class="hover:opacity-70 transition-opacity no-underline" style="color: var(--color-brun);">Kontakt</a>
     </nav>
 </header>

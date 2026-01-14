@@ -9,71 +9,55 @@ get_header();
 ?>
 
 <style>
+    /* Page-stott specific styles
+       Gjenbrukbare komponenter er nå i src/style.css:
+       - .entity-card, .icon-container, .badge-terrakotta
+       Sidespecifikke stiler nedenfor: */
+
     .entity-list-section {
         background-color: var(--color-beige);
-        padding: 60px 24px 100px;
+        padding: var(--spacing-section) var(--spacing-lg) 100px;
     }
-    
+
     .entity-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 24px;
+        gap: var(--spacing-lg);
     }
-    
-    .entity-card {
-        background: rgba(255, 255, 255, 0.7);
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
-        border-radius: 16px;
-        padding: 24px;
-        text-decoration: none;
-        transition: all 0.2s ease;
-        display: block;
-    }
-    
-    .entity-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(61, 50, 40, 0.15);
-    }
-    
-    .entity-card:focus {
-        outline: 3px solid var(--color-terrakotta);
-        outline-offset: 4px;
-    }
-    
+
+    /* Entity card content styling */
     .entity-card-icon {
         width: 48px;
         height: 48px;
         background: var(--color-korall);
-        border-radius: 12px;
+        border-radius: var(--radius-sm);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 16px;
+        margin-bottom: var(--spacing-md);
     }
-    
+
     .entity-card-icon svg {
         width: 24px;
         height: 24px;
         color: var(--color-brun);
     }
-    
+
     .entity-card-name {
-        font-size: 20px;
+        font-size: var(--text-h4);
         font-weight: 600;
-        color: var(--color-brun);
-        margin-bottom: 4px;
+        color: var(--color-text);
+        margin-bottom: var(--spacing-xs);
     }
-    
+
     .entity-card-sublabel {
-        font-size: 14px;
-        color: var(--color-brun);
-        opacity: 0.7;
+        font-size: var(--text-small);
+        color: var(--color-text-muted);
     }
-    
+
     .entity-type-badge {
         display: inline-block;
-        font-size: 11px;
+        font-size: var(--text-xs);
         font-weight: 600;
         padding: 4px 10px;
         border-radius: 6px;
@@ -81,24 +65,24 @@ get_header();
         color: var(--color-terrakotta);
         text-transform: uppercase;
         letter-spacing: 0.5px;
-        margin-top: 12px;
+        margin-top: var(--spacing-md);
     }
-    
+
     .section-divider {
-        margin: 48px 0 32px;
+        margin: var(--spacing-2xl) 0 var(--spacing-xl);
         text-align: center;
     }
-    
+
     .section-divider h2 {
-        font-size: 28px;
+        font-size: var(--text-h3);
         font-weight: 600;
-        color: var(--color-brun);
+        color: var(--color-text);
         display: inline-block;
-        padding: 0 24px;
+        padding: 0 var(--spacing-lg);
         background: var(--color-beige);
         position: relative;
     }
-    
+
     .section-divider::before {
         content: '';
         position: absolute;
@@ -106,53 +90,53 @@ get_header();
         right: 0;
         top: 50%;
         height: 1px;
-        background: rgba(61, 50, 40, 0.15);
+        background: var(--color-border);
     }
-    
+
+    /* Hero mini section */
     .hero-mini {
         background-color: var(--color-beige);
-        padding: 60px 24px 40px;
+        padding: var(--spacing-section) var(--spacing-lg) var(--spacing-xl);
         text-align: center;
     }
-    
+
     .hero-mini h1 {
         font-size: 40px;
         font-weight: 700;
-        color: var(--color-brun);
-        margin-bottom: 16px;
+        color: var(--color-text);
+        margin-bottom: var(--spacing-md);
     }
-    
+
     .hero-mini p {
-        font-size: 18px;
-        color: var(--color-brun);
-        opacity: 0.8;
+        font-size: var(--text-body-lg);
+        color: var(--color-text-muted);
         max-width: 500px;
-        margin: 0 auto 32px;
+        margin: 0 auto var(--spacing-xl);
     }
-    
+
     /* Search in hero */
     .inline-search {
         position: relative;
         max-width: 400px;
         margin: 0 auto;
     }
-    
+
     .inline-search input {
         width: 100%;
         padding: 14px 20px 14px 48px;
-        font-size: 16px;
+        font-size: var(--text-body);
         border: 2px solid transparent;
-        border-radius: 9999px;
+        border-radius: var(--radius-full);
         background: rgba(255, 255, 255, 0.9);
-        color: var(--color-brun);
-        transition: all 0.2s ease;
+        color: var(--color-text);
+        transition: all var(--transition-normal);
     }
-    
+
     .inline-search input:focus {
         outline: none;
         border-color: var(--color-terrakotta);
     }
-    
+
     .inline-search svg {
         position: absolute;
         left: 18px;
@@ -160,7 +144,7 @@ get_header();
         transform: translateY(-50%);
         width: 20px;
         height: 20px;
-        color: var(--color-brun);
+        color: var(--color-text);
         opacity: 0.5;
     }
 </style>
