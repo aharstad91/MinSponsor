@@ -1,26 +1,31 @@
-# WordPress specific
-wp-config.php
-.htaccess
-debug.log
-error_log
+# ===========================================
+# MinSponsor - Git ignore for /spons root
+# ===========================================
 
-# Composer dependencies
-vendor/
-composer.lock
+# Ignore everything by default
+/*
 
-# Node modules
-node_modules/
-npm-debug.log*
-package-lock.json
+# But track these:
+!.gitignore
+!CLAUDE.md
+!wp-content/
 
-# OS generated files
+# Inside wp-content, ignore everything except themes/spons
+wp-content/*
+!wp-content/themes/
+!wp-content/_claude/
+wp-content/themes/*
+!wp-content/themes/spons/
+
+# Inside the theme, ignore build artifacts
+wp-content/themes/spons/node_modules/
+wp-content/themes/spons/package-lock.json
+wp-content/themes/spons/dist/
+wp-content/themes/spons/vendor/
+
+# OS files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+**/.DS_Store
 
 # Editor files
 .vscode/
@@ -28,24 +33,12 @@ Thumbs.db
 *.swp
 *.swo
 
-# Temporary files
-*.tmp
-*.temp
-
-# Compiled assets
-/dist/
-/build/
-
-# Environment files
+# Environment and secrets
 .env
-.env.local
-.env.production
-
-# MCP configuration (contains API keys)
+.env.*
 .mcp.json
-/.mcp.json
-../../.mcp.json
 
-# Cache and logs
-cache/
+# Logs
 *.log
+debug.log
+error_log
