@@ -1,0 +1,84 @@
+{
+    "key": "group_stripe_kasserer",
+    "title": "Stripe Connect – Kasserer",
+    "fields": [
+        {
+            "key": "field_kasserer_email",
+            "label": "Kasserer e-post",
+            "name": "kasserer_email",
+            "aria-label": "",
+            "type": "email",
+            "instructions": "E-postadressen til kasserer som skal motta Stripe-invitasjon og administrere lagets økonomi.",
+            "required": 1,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "kasserer@eksempel.no",
+            "prepend": "",
+            "append": ""
+        },
+        {
+            "key": "field_kasserer_navn",
+            "label": "Kasserer navn",
+            "name": "kasserer_navn",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Fullt navn på kasserer.",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "Ola Nordmann",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        },
+        {
+            "key": "field_kasserer_telefon",
+            "label": "Kasserer telefon",
+            "name": "kasserer_telefon",
+            "aria-label": "",
+            "type": "text",
+            "instructions": "Mobilnummer for SMS-varsler (valgfritt).",
+            "required": 0,
+            "conditional_logic": 0,
+            "wrapper": {
+                "width": "",
+                "class": "",
+                "id": ""
+            },
+            "default_value": "",
+            "placeholder": "+47 123 45 678",
+            "prepend": "",
+            "append": "",
+            "maxlength": ""
+        }
+    ],
+    "location": [
+        [
+            {
+                "param": "post_type",
+                "operator": "==",
+                "value": "lag"
+            }
+        ]
+    ],
+    "menu_order": 0,
+    "position": "side",
+    "style": "default",
+    "label_placement": "top",
+    "instruction_placement": "label",
+    "hide_on_screen": "",
+    "active": true,
+    "description": "Kasserer-informasjon for Stripe Connect onboarding.",
+    "show_in_rest": 0,
+    "modified": 1734278400
+}

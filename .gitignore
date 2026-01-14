@@ -4,6 +4,10 @@ wp-config.php
 debug.log
 error_log
 
+# Composer dependencies
+vendor/
+composer.lock
+
 # Node modules
 node_modules/
 npm-debug.log*
@@ -36,6 +40,11 @@ Thumbs.db
 .env
 .env.local
 .env.production
+
+# MCP configuration (contains API keys)
+.mcp.json
+/.mcp.json
+../../.mcp.json
 
 # Cache and logs
 cache/

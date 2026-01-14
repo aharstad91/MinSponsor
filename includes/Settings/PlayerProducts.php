@@ -8,44 +8,34 @@
  * @since 1.0.0
  */
 
+namespace MinSponsor\Settings;
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class MinSponsor_PlayerProducts {
+class PlayerProducts {
     
     /**
      * Initialize hooks
      */
-    public function init() {
+    public function init(): void {
         // Only add hooks if WooCommerce is available
         if (!class_exists('WC_Settings_Page')) {
             return;
         }
         
         // Primary method: Use WC_Settings_Page
-        add_filter('woocommerce_get_settings_pages', array($this, 'add_settings_page'), 20);
+        add_filter('woocommerce_get_settings_pages', [$this, 'add_settings_page'], 20);
         
         // Backup method: Direct tab registration
-        add_filter('woocommerce_settings_tabs_array', array($this, 'add_settings_tab'), 50);
-        add_action('woocommerce_settings_tabs_minsponsor', array($this, 'render_settings'));
-        add_action('woocommerce_update_options_minsponsor', array($this, 'save_settings'));
+        add_filter('woocommerce_settings_tabs_array', [$this, 'add_settings_tab'], 50);
+        add_action('woocommerce_settings_tabs_minsponsor', [$this, 'render_settings']);
+        add_action('woocommerce_update_options_minsponsor', [$this, 'save_settings']);
         
         // Always add AJAX and admin scripts
-        add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_scripts'));
-        add_action('wp_ajax_minsponsor_validate_product', array($this, 'ajax_validate_product'));
-        
-        // Debug hook to verify registration
-        add_action('admin_init', array($this, 'debug_registration'), 99);
-    }
-    
-    /**
-     * Debug registration
-     */
-    public function debug_registration() {
-        if (isset($_GET['minsponsor_debug']) && current_user_can('manage_options')) {
-            error_log('MinSponsor Settings: Class loaded and hooks registered');
-        }
+        add_action('admin_enqueue_scripts', [$this, 'enqueue_admin_scripts']);
+        add_action('wp_ajax_minsponsor_validate_product', [$this, 'ajax_validate_product']);
     }
     
     /**
@@ -54,7 +44,7 @@ class MinSponsor_PlayerProducts {
      * @param array $tabs Existing tabs
      * @return array Modified tabs
      */
-    public function add_settings_tab($tabs) {
+    public function add_settings_tab(array $tabs): array {
         $tabs['minsponsor'] = __('MinSponsor', 'minsponsor');
         return $tabs;
     }
@@ -65,31 +55,31 @@ class MinSponsor_PlayerProducts {
      * @param array $settings Existing settings pages
      * @return array Modified settings pages
      */
-    public function add_settings_page($settings) {
-        $settings[] = new MinSponsor_Settings_Page();
+    public function add_settings_page(array $settings): array {
+        $settings[] = new PlayerProductsSettingsPage();
         return $settings;
     }
     
     /**
      * Render settings (fallback method)
      */
-    public function render_settings() {
-        $settings_page = new MinSponsor_Settings_Page();
+    public function render_settings(): void {
+        $settings_page = new PlayerProductsSettingsPage();
         $settings_page->output();
     }
     
     /**
      * Save settings (fallback method)
      */
-    public function save_settings() {
-        $settings_page = new MinSponsor_Settings_Page();
+    public function save_settings(): void {
+        $settings_page = new PlayerProductsSettingsPage();
         $settings_page->save();
     }
     
     /**
      * Enqueue admin scripts for settings page
      */
-    public function enqueue_admin_scripts($hook) {
+    public function enqueue_admin_scripts(string $hook): void {
         if (strpos($hook, 'wc-settings') === false) {
             return;
         }
@@ -98,34 +88,79 @@ class MinSponsor_PlayerProducts {
             return;
         }
         
-        wp_enqueue_script(
-            'minsponsor-settings',
-            get_template_directory_uri() . '/includes/Settings/settings.js',
-            array('jquery'),
-            '1.0.0',
-            true
-        );
+        wp_add_inline_script('jquery-core', $this->get_inline_script());
+    }
+    
+    /**
+     * Get inline script for validation
+     */
+    private function get_inline_script(): string {
+        $ajax_url = admin_url('admin-ajax.php');
+        $nonce = wp_create_nonce('minsponsor_settings');
         
-        wp_localize_script('minsponsor-settings', 'minsponsor_settings_ajax', array(
-            'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('minsponsor_settings')
-        ));
+        return <<<JS
+jQuery(document).ready(function($) {
+    'use strict';
+    
+    $('.minsponsor-validate-btn').on('click', function(e) {
+        e.preventDefault();
+        
+        var button = $(this);
+        var productType = button.data('type');
+        var results = $('#validation-results');
+        
+        button.prop('disabled', true).text('Validerer...');
+        
+        $.ajax({
+            url: '{$ajax_url}',
+            type: 'POST',
+            data: {
+                action: 'minsponsor_validate_product',
+                product_type: productType,
+                nonce: '{$nonce}'
+            },
+            success: function(response) {
+                var icon = response.success ? '✓' : '✗';
+                var color = response.success ? '#46b450' : '#dc3232';
+                var typeLabel = productType === 'one_time' ? 'Engangsprodukt' : 'Månedlig produkt';
+                
+                var html = '<div style="color: ' + color + '; font-weight: bold; margin-bottom: 5px;">' +
+                           icon + ' ' + typeLabel + ': ' + response.data.message + '</div>';
+                
+                if (response.success && response.data.product_name) {
+                    html += '<div style="color: #666; font-size: 12px;">Product: ' + response.data.product_name + '</div>';
+                }
+                
+                results.html(results.html() + html);
+            },
+            error: function() {
+                results.html(results.html() + '<div style="color: #dc3232;">AJAX error occurred</div>');
+            },
+            complete: function() {
+                button.prop('disabled', false);
+                button.text(productType === 'one_time' ? 'Test one-time product' : 'Test monthly product');
+            }
+        });
+    });
+});
+JS;
     }
     
     /**
      * AJAX handler for product validation
      */
-    public function ajax_validate_product() {
+    public function ajax_validate_product(): void {
         check_ajax_referer('minsponsor_settings', 'nonce');
         
         if (!current_user_can('manage_woocommerce')) {
             wp_die('Insufficient permissions');
         }
         
-        $product_id = intval($_POST['product_id']);
-        $expected_type = sanitize_text_field($_POST['expected_type']);
+        $product_type = sanitize_text_field($_POST['product_type'] ?? '');
+        $setting_key = "minsponsor_player_product_{$product_type}_id";
+        $product_id = absint(get_option($setting_key));
         
-        $validation = $this->validate_product($product_id, $expected_type);
+        $validation = $this->validate_product($product_id, $product_type);
         
         if ($validation['valid']) {
             wp_send_json_success($validation);
@@ -141,54 +176,54 @@ class MinSponsor_PlayerProducts {
      * @param string $expected_type Expected type ('one_time' or 'monthly')
      * @return array Validation result
      */
-    public function validate_product($product_id, $expected_type) {
+    public function validate_product(int $product_id, string $expected_type): array {
         if (!$product_id) {
-            return array(
+            return [
                 'valid' => false,
-                'message' => 'Ugyldig produkt-ID'
-            );
+                'message' => 'Invalid product ID'
+            ];
         }
         
         $product = wc_get_product($product_id);
         
         if (!$product) {
-            return array(
+            return [
                 'valid' => false,
-                'message' => 'Produktet finnes ikke'
-            );
+                'message' => 'Product does not exist'
+            ];
         }
         
         if ($product->get_status() !== 'publish') {
-            return array(
+            return [
                 'valid' => false,
-                'message' => 'Produktet er ikke publisert'
-            );
+                'message' => 'Product is not published'
+            ];
         }
         
         $is_subscription = class_exists('WC_Subscriptions_Product') && 
-                          WC_Subscriptions_Product::is_subscription($product);
+                          \WC_Subscriptions_Product::is_subscription($product);
         
         if ($expected_type === 'one_time' && $is_subscription) {
-            return array(
+            return [
                 'valid' => false,
-                'message' => 'Engangsprodukt kan ikke være et abonnement'
-            );
+                'message' => 'One-time product cannot be a subscription'
+            ];
         }
         
         if ($expected_type === 'monthly' && !$is_subscription) {
-            return array(
+            return [
                 'valid' => false,
-                'message' => 'Månedlig produkt må være et abonnement'
-            );
+                'message' => 'Monthly product must be a subscription'
+            ];
         }
         
-        return array(
+        return [
             'valid' => true,
-            'message' => 'Produktet er gyldig',
+            'message' => 'Product is valid',
             'product_name' => $product->get_name(),
             'product_price' => wc_price($product->get_price()),
             'is_subscription' => $is_subscription
-        );
+        ];
     }
     
     /**
@@ -197,37 +232,36 @@ class MinSponsor_PlayerProducts {
      * @param string $type Product type filter ('simple', 'subscription', or 'all')
      * @return array Product options
      */
-    public static function get_product_options($type = 'all') {
-        $args = array(
-            'post_type' => 'product',
-            'post_status' => 'publish',
-            'posts_per_page' => -1,
-            'meta_query' => array(),
-            'orderby' => 'title',
-            'order' => 'ASC'
-        );
+    public static function get_product_options(string $type = 'all'): array {
+        $options = ['' => 'Select product...'];
         
+        // Use WooCommerce's proper product query
+        $args = [
+            'status' => 'publish',
+            'limit' => -1,
+            'orderby' => 'title',
+            'order' => 'ASC',
+        ];
+        
+        // Filter by product type
         if ($type === 'simple') {
-            $args['meta_query'][] = array(
-                'key' => '_subscription_price',
-                'compare' => 'NOT EXISTS'
-            );
+            $args['type'] = ['simple'];
         } elseif ($type === 'subscription') {
-            $args['meta_query'][] = array(
-                'key' => '_subscription_price',
-                'compare' => 'EXISTS'
-            );
+            $args['type'] = ['subscription', 'variable-subscription'];
         }
         
-        $products = get_posts($args);
-        $options = array('' => 'Velg produkt...');
+        $products = wc_get_products($args);
         
         foreach ($products as $product) {
-            $product_obj = wc_get_product($product->ID);
-            if ($product_obj) {
-                $price = $product_obj->get_price();
+            if ($product) {
+                $price = $product->get_price();
                 $price_text = $price ? ' (' . wc_price($price) . ')' : '';
-                $options[$product->ID] = $product->post_title . $price_text;
+                $type_label = '';
+                if ($product->is_type('subscription') || $product->is_type('variable-subscription')) {
+                    $type_label = ' [subscription]';
+                }
+                // Use string key for WooCommerce select compatibility
+                $options[(string) $product->get_id()] = $product->get_name() . $price_text . $type_label;
             }
         }
         
@@ -238,7 +272,7 @@ class MinSponsor_PlayerProducts {
 /**
  * MinSponsor Settings Page Class
  */
-class MinSponsor_Settings_Page extends WC_Settings_Page {
+class PlayerProductsSettingsPage extends \WC_Settings_Page {
     
     /**
      * Constructor
@@ -255,128 +289,89 @@ class MinSponsor_Settings_Page extends WC_Settings_Page {
      *
      * @return array Settings
      */
-    public function get_settings() {
-        $settings = array(
-            array(
-                'title' => __('MinSponsor - Spillerstøtte', 'minsponsor'),
+    public function get_settings(): array {
+        $settings = [
+            [
+                'title' => __('MinSponsor - Player Support', 'minsponsor'),
                 'type' => 'title',
-                'desc' => __('Konfigurer produkter for spillerstøtte og QR-kode generering.', 'minsponsor'),
+                'desc' => __('Configure products for player sponsorship.', 'minsponsor'),
                 'id' => 'minsponsor_player_products_options'
-            ),
+            ],
             
-            array(
-                'title' => __('Engangsprodukt', 'minsponsor'),
-                'desc' => __('Velg hvilket produkt som skal brukes for engangsstøtte til spillere. Dette må være et vanlig (simple) produkt.', 'minsponsor'),
+            [
+                'title' => __('One-time Product', 'minsponsor'),
+                'desc' => __('Select which product to use for one-time player sponsorship. This must be a simple product.', 'minsponsor'),
                 'id' => 'minsponsor_player_product_one_time_id',
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
                 'css' => 'min-width:300px;',
                 'default' => '',
-                'options' => MinSponsor_PlayerProducts::get_product_options('simple'),
-                'custom_attributes' => array(
+                'options' => PlayerProducts::get_product_options('simple'),
+                'custom_attributes' => [
                     'data-product-type' => 'one_time'
-                )
-            ),
+                ]
+            ],
             
-            array(
-                'title' => __('Månedlig abonnement', 'minsponsor'),
-                'desc' => __('Velg hvilket abonnementsprodukt som skal brukes for månedlig støtte til spillere. Dette må være et abonnementsprodukt.', 'minsponsor'),
+            [
+                'title' => __('Monthly Subscription', 'minsponsor'),
+                'desc' => __('Select which subscription product to use for monthly player sponsorship. This must be a subscription product.', 'minsponsor'),
                 'id' => 'minsponsor_player_product_monthly_id',
                 'type' => 'select',
                 'class' => 'wc-enhanced-select',
                 'css' => 'min-width:300px;',
                 'default' => '',
-                'options' => MinSponsor_PlayerProducts::get_product_options('subscription'),
-                'custom_attributes' => array(
+                'options' => PlayerProducts::get_product_options('subscription'),
+                'custom_attributes' => [
                     'data-product-type' => 'monthly'
-                )
-            ),
+                ]
+            ],
             
-            array(
+            [
                 'type' => 'sectionend',
                 'id' => 'minsponsor_player_products_options'
-            ),
+            ],
             
-            array(
-                'title' => __('Fallback-produkter (SKU)', 'minsponsor'),
+            [
+                'title' => __('Fallback Products (SKU)', 'minsponsor'),
                 'type' => 'title',
-                'desc' => __('Hvis produktene ovenfor ikke er satt, vil systemet automatisk lete etter produkter med disse SKU-ene:', 'minsponsor') . 
-                         '<br><strong>Engang:</strong> <code>minsponsor_player_one_time</code>' .
-                         '<br><strong>Månedlig:</strong> <code>minsponsor_player_monthly</code>',
+                'desc' => __('If the products above are not set, the system will automatically search for products with these SKUs:', 'minsponsor') . 
+                         '<br><strong>One-time:</strong> <code>minsponsor_player_one_time</code>' .
+                         '<br><strong>Monthly:</strong> <code>minsponsor_player_monthly</code>',
                 'id' => 'minsponsor_fallback_info'
-            ),
+            ],
             
-            array(
+            [
                 'type' => 'sectionend',
                 'id' => 'minsponsor_fallback_info'
-            ),
+            ],
             
-            array(
-                'title' => __('QR-kode innstillinger', 'minsponsor'),
+            [
+                'title' => __('Validation', 'minsponsor'),
                 'type' => 'title',
-                'desc' => __('Innstillinger for generering av QR-koder.', 'minsponsor'),
-                'id' => 'minsponsor_qr_options'
-            ),
-            
-            array(
-                'title' => __('QR-kode størrelse', 'minsponsor'),
-                'desc' => __('Størrelse på genererte QR-koder i piksler.', 'minsponsor'),
-                'id' => 'minsponsor_qr_size',
-                'type' => 'select',
-                'default' => '1024',
-                'options' => array(
-                    '512' => '512x512 px',
-                    '1024' => '1024x1024 px',
-                    '2048' => '2048x2048 px'
-                )
-            ),
-            
-            array(
-                'title' => __('Feilkorrigering', 'minsponsor'),
-                'desc' => __('Nivå av feilkorrigering for QR-koder. Høyere nivå gjør QR-koden mer robust, men også mer kompleks.', 'minsponsor'),
-                'id' => 'minsponsor_qr_error_correction',
-                'type' => 'select',
-                'default' => 'H',
-                'options' => array(
-                    'L' => 'Lav (7%)',
-                    'M' => 'Medium (15%)',
-                    'Q' => 'Kvartil (25%)',
-                    'H' => 'Høy (30%)'
-                )
-            ),
-            
-            array(
-                'type' => 'sectionend',
-                'id' => 'minsponsor_qr_options'
-            ),
-            
-            array(
-                'title' => __('Validering', 'minsponsor'),
-                'type' => 'title',
-                'desc' => __('Test at produktkonfigurasjonen fungerer som forventet.', 'minsponsor'),
+                'desc' => __('Test that the product configuration works as expected.', 'minsponsor'),
                 'id' => 'minsponsor_validation'
-            ),
-        );
-        
-        // Add validation buttons
-        $settings[] = array(
-            'title' => __('Test produkter', 'minsponsor'),
-            'type' => 'minsponsor_validation_buttons',
-            'id' => 'minsponsor_validation_buttons'
-        );
-        
-        $settings[] = array(
-            'type' => 'sectionend',
-            'id' => 'minsponsor_validation'
-        );
+            ],
+        ];
         
         return apply_filters('minsponsor_settings', $settings);
     }
     
     /**
+     * Output settings page
+     */
+    public function output(): void {
+        $settings = $this->get_settings();
+        
+        \WC_Admin_Settings::output_fields($settings);
+        
+        // Add validation buttons
+        $this->output_validation_buttons();
+    }
+    
+    /**
      * Output validation buttons
      */
-    public function output_minsponsor_validation_buttons() {
+    private function output_validation_buttons(): void {
         ?>
         <tr valign="top">
             <th scope="row" class="titledesc">Produktvalidering</th>
@@ -391,45 +386,15 @@ class MinSponsor_Settings_Page extends WC_Settings_Page {
                 <p class="description">Klikk for å validere at produktene er riktig konfigurert for spillerstøtte.</p>
             </td>
         </tr>
+        </table>
         <?php
-    }
-    
-    /**
-     * Output settings page
-     */
-    public function output() {
-        $settings = $this->get_settings();
-        
-        // Filter out custom field types before passing to WC_Admin_Settings
-        $standard_settings = array();
-        $custom_fields = array();
-        
-        foreach ($settings as $setting) {
-            if (isset($setting['type']) && $setting['type'] === 'minsponsor_validation_buttons') {
-                $custom_fields[] = $setting;
-            } else {
-                $standard_settings[] = $setting;
-            }
-        }
-        
-        // Output standard WooCommerce fields
-        WC_Admin_Settings::output_fields($standard_settings);
-        
-        // Output custom fields
-        foreach ($custom_fields as $field) {
-            if ($field['type'] === 'minsponsor_validation_buttons') {
-                $this->output_minsponsor_validation_buttons();
-            }
-        }
     }
     
     /**
      * Save settings
      */
-    public function save() {
-        global $current_section;
-        
+    public function save(): void {
         $settings = $this->get_settings();
-        WC_Admin_Settings::save_fields($settings);
+        \WC_Admin_Settings::save_fields($settings);
     }
 }

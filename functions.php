@@ -1,7 +1,17 @@
 <?php
 /**
  * Spons Theme Functions - MinSponsor Implementation
+ *
+ * Refactored to use modular classes for better maintainability.
+ *
+ * @package MinSponsor
+ * @since 1.0.0
  */
+
+// Load Composer autoloader for Stripe SDK and other dependencies
+if (file_exists(get_template_directory() . '/vendor/autoload.php')) {
+    require_once get_template_directory() . '/vendor/autoload.php';
+}
 
 // Theme setup
 function spons_theme_setup() {
@@ -15,7 +25,13 @@ function spons_theme_setup() {
         'gallery',
         'caption',
     ));
-    
+
+    // WooCommerce support
+    add_theme_support('woocommerce');
+    add_theme_support('wc-product-gallery-zoom');
+    add_theme_support('wc-product-gallery-lightbox');
+    add_theme_support('wc-product-gallery-slider');
+
     // Register navigation menu
     register_nav_menus(array(
         'primary' => 'Hovedmeny',
@@ -27,7 +43,7 @@ add_action('after_setup_theme', 'spons_theme_setup');
 function spons_enqueue_assets() {
     // Enqueue main stylesheet
     wp_enqueue_style('spons-style', get_stylesheet_uri(), array(), '1.0');
-    
+
     // Enqueue Tailwind CSS (will be built version)
     wp_enqueue_style('spons-tailwind', get_template_directory_uri() . '/dist/style.css', array(), '1.0');
 }
@@ -53,653 +69,76 @@ add_action('init', 'spons_cleanup_head');
  * MINSPONSOR IMPLEMENTATION
  * ===========================*/
 
-/**
- * Register all MinSponsor content types, taxonomies, and rewrite rules
- * 
- * @since 1.0.0
- */
-function minsponsor_register_everything() {
-    // Register Custom Post Types
-    minsponsor_register_cpt_klubb();
-    minsponsor_register_cpt_lag();
-    minsponsor_register_cpt_spiller();
-    
-    // Register Taxonomies
-    minsponsor_register_taxonomy_idrettsgren();
-    
-    // Add custom rewrite rules
-    minsponsor_add_rewrite_rules();
-}
-add_action('init', 'minsponsor_register_everything');
+// Initialize Entity Search API
+require_once get_template_directory() . '/includes/Api/EntitySearch.php';
+\MinSponsor\Api\EntitySearch::init();
 
 /**
- * Register klubb custom post type
- * 
+ * Initialize MinSponsor core modules (CPT, Routing, Admin)
+ *
+ * Uses refactored class-based architecture for maintainability.
+ *
  * @since 1.0.0
  */
-function minsponsor_register_cpt_klubb() {
-    $args = array(
-        'labels' => array(
-            'name' => 'Klubber',
-            'singular_name' => 'Klubb',
-            'menu_name' => 'Klubber',
-            'add_new' => 'Legg til klubb',
-            'add_new_item' => 'Legg til ny klubb',
-            'edit_item' => 'Rediger klubb',
-            'new_item' => 'Ny klubb',
-            'view_item' => 'Vis klubb',
-            'search_items' => 'Søk klubber',
-            'not_found' => 'Ingen klubber funnet',
-            'not_found_in_trash' => 'Ingen klubber funnet i papirkurv',
-        ),
-        'public' => true,
-        'show_in_rest' => true,
-        'has_archive' => false,
-        'rewrite' => array(
-            'slug' => 'stott',
-            'with_front' => false,
-        ),
-        'supports' => array('title', 'editor', 'thumbnail', 'excerpt', 'revisions'),
-        'menu_icon' => 'dashicons-groups',
-        'capability_type' => 'post',
-        'map_meta_cap' => true,
-    );
-    
-    register_post_type('klubb', $args);
+function minsponsor_init_core_modules() {
+    // Load the modular classes
+    require_once get_template_directory() . '/includes/CPT/PostTypes.php';
+    require_once get_template_directory() . '/includes/CPT/DataIntegrity.php';
+    require_once get_template_directory() . '/includes/Routing/Permalinks.php';
+    require_once get_template_directory() . '/includes/Admin/AdminColumns.php';
+
+    // Initialize CPT registration
+    \MinSponsor\CPT\PostTypes::init();
+
+    // Initialize data integrity protection (cascade delete, validation)
+    \MinSponsor\CPT\DataIntegrity::init();
+
+    // Initialize routing (permalinks, rewrites, canonical redirects)
+    \MinSponsor\Routing\Permalinks::init();
+
+    // Initialize admin columns and filters
+    \MinSponsor\Admin\AdminColumns::init();
 }
+add_action('after_setup_theme', 'minsponsor_init_core_modules');
 
 /**
- * Register lag custom post type
- * 
- * @since 1.0.0
- */
-function minsponsor_register_cpt_lag() {
-    $args = array(
-        'labels' => array(
-            'name' => 'Lag',
-            'singular_name' => 'Lag',
-            'menu_name' => 'Lag',
-            'add_new' => 'Legg til lag',
-            'add_new_item' => 'Legg til nytt lag',
-            'edit_item' => 'Rediger lag',
-            'new_item' => 'Nytt lag',
-            'view_item' => 'Vis lag',
-            'search_items' => 'Søk lag',
-            'not_found' => 'Ingen lag funnet',
-            'not_found_in_trash' => 'Ingen lag funnet i papirkurv',
-        ),
-        'public' => true,
-        'show_in_rest' => true,
-        'has_archive' => false,
-        'rewrite' => false,
-        'supports' => array('title', 'editor', 'thumbnail', 'excerpt', 'revisions'),
-        'menu_icon' => 'dashicons-networking',
-        'capability_type' => 'post',
-        'map_meta_cap' => true,
-    );
-    
-    register_post_type('lag', $args);
-}
-
-/**
- * Register spiller custom post type
- * 
- * @since 1.0.0
- */
-function minsponsor_register_cpt_spiller() {
-    $args = array(
-        'labels' => array(
-            'name' => 'Spillere',
-            'singular_name' => 'Spiller',
-            'menu_name' => 'Spillere',
-            'add_new' => 'Legg til spiller',
-            'add_new_item' => 'Legg til ny spiller',
-            'edit_item' => 'Rediger spiller',
-            'new_item' => 'Ny spiller',
-            'view_item' => 'Vis spiller',
-            'search_items' => 'Søk spillere',
-            'not_found' => 'Ingen spillere funnet',
-            'not_found_in_trash' => 'Ingen spillere funnet i papirkurv',
-        ),
-        'public' => true,
-        'show_in_rest' => true,
-        'has_archive' => false,
-        'rewrite' => false,
-        'supports' => array('title', 'editor', 'thumbnail', 'excerpt', 'revisions'),
-        'menu_icon' => 'dashicons-universal-access',
-        'capability_type' => 'post',
-        'map_meta_cap' => true,
-    );
-    
-    register_post_type('spiller', $args);
-}
-
-/**
- * Register idrettsgren taxonomy
- * 
- * @since 1.0.0
- */
-function minsponsor_register_taxonomy_idrettsgren() {
-    $args = array(
-        'labels' => array(
-            'name' => 'Idrettsgrener',
-            'singular_name' => 'Idrettsgren',
-            'menu_name' => 'Idrettsgrener',
-            'all_items' => 'Alle idrettsgrener',
-            'edit_item' => 'Rediger idrettsgren',
-            'view_item' => 'Vis idrettsgren',
-            'update_item' => 'Oppdater idrettsgren',
-            'add_new_item' => 'Legg til ny idrettsgren',
-            'new_item_name' => 'Ny idrettsgren navn',
-            'search_items' => 'Søk idrettsgrener',
-            'not_found' => 'Ingen idrettsgrener funnet',
-        ),
-        'hierarchical' => true,
-        'public' => true,
-        'show_in_rest' => true,
-        'rewrite' => array(
-            'slug' => 'idrettsgren',
-        ),
-    );
-    
-    register_taxonomy('idrettsgren', array('lag'), $args);
-}
-
-/**
- * Add custom rewrite rules for pretty permalinks
- * 
- * @since 1.0.0
- */
-function minsponsor_add_rewrite_rules() {
-    add_rewrite_rule(
-        '^stott/([^/]+)/([^/]+)/([^/]+)/?$',
-        'index.php?post_type=spiller&name=$matches[3]&klubb_slug=$matches[1]&lag_slug=$matches[2]',
-        'top'
-    );
-    
-    add_rewrite_rule(
-        '^stott/([^/]+)/([^/]+)/?$',
-        'index.php?post_type=lag&name=$matches[2]&klubb_slug=$matches[1]',
-        'top'
-    );
-    
-    add_rewrite_rule(
-        '^stott/([^/]+)/?$',
-        'index.php?post_type=klubb&name=$matches[1]',
-        'top'
-    );
-}
-
-/**
- * Add custom query vars for rewrite rules
- * 
- * @param array $vars Existing query vars
- * @return array Modified query vars
- * @since 1.0.0
- */
-function minsponsor_add_query_vars($vars) {
-    $vars[] = 'klubb_slug';
-    $vars[] = 'lag_slug';
-    return $vars;
-}
-add_filter('query_vars', 'minsponsor_add_query_vars');
-
-/**
- * Generate pretty permalinks for custom post types
- * 
- * @param string $permalink Default permalink
- * @param WP_Post $post Post object
- * @return string Pretty permalink
- * @since 1.0.0
- */
-function minsponsor_generate_permalink($permalink, $post) {
-    if (!is_object($post) || !isset($post->post_type)) {
-        return $permalink;
-    }
-    
-    $home_url = trailingslashit(home_url());
-    
-    switch ($post->post_type) {
-        case 'klubb':
-            return $home_url . 'stott/' . $post->post_name . '/';
-            
-        case 'lag':
-            $klubb_id = minsponsor_get_parent_klubb_id($post->ID);
-            if (!$klubb_id) {
-                return $permalink;
-            }
-            $klubb_slug = minsponsor_get_post_slug($klubb_id);
-            if (!$klubb_slug) {
-                return $permalink;
-            }
-            return $home_url . 'stott/' . $klubb_slug . '/' . $post->post_name . '/';
-            
-        case 'spiller':
-            $lag_id = minsponsor_get_parent_lag_id($post->ID);
-            if (!$lag_id) {
-                return $permalink;
-            }
-            $klubb_id = minsponsor_get_parent_klubb_id($lag_id);
-            if (!$klubb_id) {
-                return $permalink;
-            }
-            $lag_slug = minsponsor_get_post_slug($lag_id);
-            $klubb_slug = minsponsor_get_post_slug($klubb_id);
-            if (!$lag_slug || !$klubb_slug) {
-                return $permalink;
-            }
-            return $home_url . 'stott/' . $klubb_slug . '/' . $lag_slug . '/' . $post->post_name . '/';
-    }
-    
-    return $permalink;
-}
-add_filter('post_type_link', 'minsponsor_generate_permalink', 10, 2);
-
-/**
- * Handle canonical redirects for lag and spiller
- * 
- * @since 1.0.0
- */
-function minsponsor_canonical_redirect() {
-    if (!is_singular(array('lag', 'spiller'))) {
-        return;
-    }
-    
-    $post = get_queried_object();
-    if (!$post) {
-        return;
-    }
-    
-    // Get the slugs from query vars (set by our rewrite rules)
-    $klubb_slug_from_url = get_query_var('klubb_slug');
-    $lag_slug_from_url = get_query_var('lag_slug');
-    
-    // Only proceed if we have URL slugs (meaning accessed via our custom rules)
-    if (empty($klubb_slug_from_url)) {
-        return;
-    }
-    
-    $should_redirect = false;
-    
-    if ($post->post_type === 'lag') {
-        // Check if the klubb slug in URL matches the actual parent klubb
-        $actual_klubb_id = minsponsor_get_parent_klubb_id($post->ID);
-        if ($actual_klubb_id) {
-            $actual_klubb_slug = minsponsor_get_post_slug($actual_klubb_id);
-            if ($actual_klubb_slug && $actual_klubb_slug !== $klubb_slug_from_url) {
-                $should_redirect = true;
-            }
-        }
-    } elseif ($post->post_type === 'spiller') {
-        // Check if both klubb and lag slugs match the actual relationships
-        $actual_lag_id = minsponsor_get_parent_lag_id($post->ID);
-        if ($actual_lag_id) {
-            $actual_lag_slug = minsponsor_get_post_slug($actual_lag_id);
-            $actual_klubb_id = minsponsor_get_parent_klubb_id($actual_lag_id);
-            $actual_klubb_slug = $actual_klubb_id ? minsponsor_get_post_slug($actual_klubb_id) : null;
-            
-            if (($actual_klubb_slug && $actual_klubb_slug !== $klubb_slug_from_url) ||
-                ($actual_lag_slug && $actual_lag_slug !== $lag_slug_from_url)) {
-                $should_redirect = true;
-            }
-        }
-    }
-    
-    if ($should_redirect) {
-        $correct_url = get_permalink($post);
-        wp_redirect($correct_url, 301);
-        exit;
-    }
-}
-add_action('template_redirect', 'minsponsor_canonical_redirect');
-
-/**
- * Get parent klubb ID for a lag
- * 
+ * Helper function: Get parent klubb ID for a lag
+ *
+ * Wrapper around Permalinks class method for backwards compatibility.
+ *
  * @param int $lag_id Lag post ID
  * @return int|false Parent klubb ID or false if not found
  * @since 1.0.0
  */
 function minsponsor_get_parent_klubb_id($lag_id) {
-    if (!$lag_id) {
-        return false;
-    }
-    
-    $parent_klubb = get_post_meta($lag_id, 'parent_klubb', true);
-    return $parent_klubb ? (int) $parent_klubb : false;
+    return \MinSponsor\Routing\Permalinks::get_parent_klubb_id($lag_id);
 }
 
 /**
- * Get parent lag ID for a spiller
- * 
+ * Helper function: Get parent lag ID for a spiller
+ *
+ * Wrapper around Permalinks class method for backwards compatibility.
+ *
  * @param int $spiller_id Spiller post ID
  * @return int|false Parent lag ID or false if not found
  * @since 1.0.0
  */
 function minsponsor_get_parent_lag_id($spiller_id) {
-    if (!$spiller_id) {
-        return false;
-    }
-    
-    $parent_lag = get_post_meta($spiller_id, 'parent_lag', true);
-    return $parent_lag ? (int) $parent_lag : false;
+    return \MinSponsor\Routing\Permalinks::get_parent_lag_id($spiller_id);
 }
 
 /**
- * Get post slug with caching
- * 
+ * Helper function: Get post slug with caching
+ *
+ * Wrapper around Permalinks class method for backwards compatibility.
+ *
  * @param int $post_id Post ID
  * @return string|false Post slug or false if not found
  * @since 1.0.0
  */
 function minsponsor_get_post_slug($post_id) {
-    static $slug_cache = array();
-    
-    if (!$post_id) {
-        return false;
-    }
-    
-    if (isset($slug_cache[$post_id])) {
-        return $slug_cache[$post_id];
-    }
-    
-    $post = get_post($post_id);
-    if (!$post) {
-        $slug_cache[$post_id] = false;
-        return false;
-    }
-    
-    $slug_cache[$post_id] = $post->post_name;
-    return $post->post_name;
+    return \MinSponsor\Routing\Permalinks::get_post_slug($post_id);
 }
-
-/**
- * Add custom admin list table columns for lag
- * 
- * @param array $columns Existing columns
- * @return array Modified columns
- * @since 1.0.0
- */
-function minsponsor_lag_admin_columns($columns) {
-    $new_columns = array();
-    foreach ($columns as $key => $value) {
-        $new_columns[$key] = $value;
-        if ($key === 'title') {
-            $new_columns['parent_klubb'] = 'Klubb';
-            $new_columns['idrettsgren'] = 'Idrettsgren';
-        }
-    }
-    return $new_columns;
-}
-add_filter('manage_lag_posts_columns', 'minsponsor_lag_admin_columns');
-
-/**
- * Add custom admin list table columns for spiller
- * 
- * @param array $columns Existing columns
- * @return array Modified columns
- * @since 1.0.0
- */
-function minsponsor_spiller_admin_columns($columns) {
-    $new_columns = array();
-    foreach ($columns as $key => $value) {
-        $new_columns[$key] = $value;
-        if ($key === 'title') {
-            $new_columns['parent_lag'] = 'Lag';
-            $new_columns['parent_klubb'] = 'Klubb';
-        }
-    }
-    return $new_columns;
-}
-add_filter('manage_spiller_posts_columns', 'minsponsor_spiller_admin_columns');
-
-/**
- * Populate custom admin columns for lag
- * 
- * @param string $column Column name
- * @param int $post_id Post ID
- * @since 1.0.0
- */
-function minsponsor_lag_admin_column_content($column, $post_id) {
-    switch ($column) {
-        case 'parent_klubb':
-            $klubb_id = minsponsor_get_parent_klubb_id($post_id);
-            if ($klubb_id) {
-                $klubb = get_post($klubb_id);
-                if ($klubb) {
-                    $edit_url = get_edit_post_link($klubb_id);
-                    echo '<a href="' . esc_url($edit_url) . '">' . esc_html($klubb->post_title) . '</a>';
-                } else {
-                    echo '—';
-                }
-            } else {
-                echo '—';
-            }
-            break;
-            
-        case 'idrettsgren':
-            $terms = get_the_terms($post_id, 'idrettsgren');
-            if ($terms && !is_wp_error($terms)) {
-                $term_names = array();
-                foreach ($terms as $term) {
-                    $term_names[] = esc_html($term->name);
-                }
-                echo implode(', ', $term_names);
-            } else {
-                echo '—';
-            }
-            break;
-    }
-}
-add_action('manage_lag_posts_custom_column', 'minsponsor_lag_admin_column_content', 10, 2);
-
-/**
- * Populate custom admin columns for spiller
- * 
- * @param string $column Column name
- * @param int $post_id Post ID
- * @since 1.0.0
- */
-function minsponsor_spiller_admin_column_content($column, $post_id) {
-    switch ($column) {
-        case 'parent_lag':
-            $lag_id = minsponsor_get_parent_lag_id($post_id);
-            if ($lag_id) {
-                $lag = get_post($lag_id);
-                if ($lag) {
-                    $edit_url = get_edit_post_link($lag_id);
-                    echo '<a href="' . esc_url($edit_url) . '">' . esc_html($lag->post_title) . '</a>';
-                } else {
-                    echo '—';
-                }
-            } else {
-                echo '—';
-            }
-            break;
-            
-        case 'parent_klubb':
-            $lag_id = minsponsor_get_parent_lag_id($post_id);
-            if ($lag_id) {
-                $klubb_id = minsponsor_get_parent_klubb_id($lag_id);
-                if ($klubb_id) {
-                    $klubb = get_post($klubb_id);
-                    if ($klubb) {
-                        $edit_url = get_edit_post_link($klubb_id);
-                        echo '<a href="' . esc_url($edit_url) . '">' . esc_html($klubb->post_title) . '</a>';
-                    } else {
-                        echo '—';
-                    }
-                } else {
-                    echo '—';
-                }
-            } else {
-                echo '—';
-            }
-            break;
-    }
-}
-add_action('manage_spiller_posts_custom_column', 'minsponsor_spiller_admin_column_content', 10, 2);
-
-/**
- * Add admin filters for lag posts
- * 
- * @since 1.0.0
- */
-function minsponsor_lag_admin_filters() {
-    global $typenow;
-    
-    if ($typenow !== 'lag') {
-        return;
-    }
-    
-    $klubber = get_posts(array(
-        'post_type' => 'klubb',
-        'posts_per_page' => -1,
-        'post_status' => 'any',
-        'orderby' => 'title',
-        'order' => 'ASC',
-    ));
-    
-    $selected_klubb = isset($_GET['klubb_filter']) ? (int) $_GET['klubb_filter'] : 0;
-    
-    echo '<select name="klubb_filter">';
-    echo '<option value="">Alle klubber</option>';
-    foreach ($klubber as $klubb) {
-        $selected = selected($selected_klubb, $klubb->ID, false);
-        echo '<option value="' . esc_attr($klubb->ID) . '"' . $selected . '>' . esc_html($klubb->post_title) . '</option>';
-    }
-    echo '</select>';
-}
-add_action('restrict_manage_posts', 'minsponsor_lag_admin_filters');
-
-/**
- * Add admin filters for spiller posts
- * 
- * @since 1.0.0
- */
-function minsponsor_spiller_admin_filters() {
-    global $typenow;
-    
-    if ($typenow !== 'spiller') {
-        return;
-    }
-    
-    // Klubb filter
-    $klubber = get_posts(array(
-        'post_type' => 'klubb',
-        'posts_per_page' => -1,
-        'post_status' => 'any',
-        'orderby' => 'title',
-        'order' => 'ASC',
-    ));
-    
-    $selected_klubb = isset($_GET['klubb_filter']) ? (int) $_GET['klubb_filter'] : 0;
-    
-    echo '<select name="klubb_filter">';
-    echo '<option value="">Alle klubber</option>';
-    foreach ($klubber as $klubb) {
-        $selected = selected($selected_klubb, $klubb->ID, false);
-        echo '<option value="' . esc_attr($klubb->ID) . '"' . $selected . '>' . esc_html($klubb->post_title) . '</option>';
-    }
-    echo '</select>';
-    
-    // Lag filter
-    $lag = get_posts(array(
-        'post_type' => 'lag',
-        'posts_per_page' => -1,
-        'post_status' => 'any',
-        'orderby' => 'title',
-        'order' => 'ASC',
-    ));
-    
-    $selected_lag = isset($_GET['lag_filter']) ? (int) $_GET['lag_filter'] : 0;
-    
-    echo '<select name="lag_filter">';
-    echo '<option value="">Alle lag</option>';
-    foreach ($lag as $l) {
-        $selected = selected($selected_lag, $l->ID, false);
-        echo '<option value="' . esc_attr($l->ID) . '"' . $selected . '>' . esc_html($l->post_title) . '</option>';
-    }
-    echo '</select>';
-}
-add_action('restrict_manage_posts', 'minsponsor_spiller_admin_filters');
-
-/**
- * Apply admin filters for lag posts
- * 
- * @param WP_Query $query Query object
- * @since 1.0.0
- */
-function minsponsor_lag_admin_filter_query($query) {
-    global $pagenow, $typenow;
-    
-    if ($pagenow !== 'edit.php' || $typenow !== 'lag' || !$query->is_admin || !$query->is_main_query()) {
-        return;
-    }
-    
-    if (isset($_GET['klubb_filter']) && !empty($_GET['klubb_filter'])) {
-        $klubb_id = (int) $_GET['klubb_filter'];
-        if ($klubb_id > 0) {
-            $query->set('meta_key', 'parent_klubb');
-            $query->set('meta_value', $klubb_id);
-        }
-    }
-}
-add_action('pre_get_posts', 'minsponsor_lag_admin_filter_query');
-
-/**
- * Apply admin filters for spiller posts
- * 
- * @param WP_Query $query Query object
- * @since 1.0.0
- */
-function minsponsor_spiller_admin_filter_query($query) {
-    global $pagenow, $typenow;
-    
-    if ($pagenow !== 'edit.php' || $typenow !== 'spiller' || !$query->is_admin || !$query->is_main_query()) {
-        return;
-    }
-    
-    if (isset($_GET['lag_filter']) && !empty($_GET['lag_filter'])) {
-        $lag_id = (int) $_GET['lag_filter'];
-        if ($lag_id > 0) {
-            $query->set('meta_key', 'parent_lag');
-            $query->set('meta_value', $lag_id);
-        }
-    } elseif (isset($_GET['klubb_filter']) && !empty($_GET['klubb_filter'])) {
-        $klubb_id = (int) $_GET['klubb_filter'];
-        if ($klubb_id > 0) {
-            // Find all lag posts with this klubb as parent
-            $lag_posts = get_posts(array(
-                'post_type' => 'lag',
-                'posts_per_page' => -1,
-                'meta_key' => 'parent_klubb',
-                'meta_value' => $klubb_id,
-                'fields' => 'ids',
-            ));
-            
-            if (!empty($lag_posts)) {
-                $query->set('meta_query', array(
-                    array(
-                        'key' => 'parent_lag',
-                        'value' => $lag_posts,
-                        'compare' => 'IN',
-                    ),
-                ));
-            } else {
-                // No lag found for this klubb, show no results
-                $query->set('meta_query', array(
-                    array(
-                        'key' => 'parent_lag',
-                        'value' => '-1',
-                        'compare' => '=',
-                    ),
-                ));
-            }
-        }
-    }
-}
-add_action('pre_get_posts', 'minsponsor_spiller_admin_filter_query');
 
 /**
  * Add body classes for MinSponsor content types
@@ -786,17 +225,6 @@ if (function_exists('acf')) {
     add_filter('acf/settings/load_json', 'minsponsor_acf_json_load_point');
 }
 
-/**
- * Flush rewrite rules on theme activation
- * 
- * @since 1.0.0
- */
-function minsponsor_flush_rewrite_rules() {
-    minsponsor_register_everything();
-    flush_rewrite_rules();
-}
-add_action('after_switch_theme', 'minsponsor_flush_rewrite_rules');
-
 // Original theme body classes (enhanced)
 function spons_body_classes($classes) {
     if (!is_user_logged_in()) {
@@ -847,27 +275,27 @@ add_filter('acf/fields/post_object/result/name=parent_lag', function ($title, $p
  * MINSPONSOR STEP 5 - PLAYER SPONSORSHIP
  * ===========================*/
 
+use MinSponsor\Frontend\PlayerRoute;
+use MinSponsor\Admin\SpillerMetaBox;
+use MinSponsor\Admin\LagStripeMetaBox;
+use MinSponsor\Checkout\CartPrice;
+use MinSponsor\Checkout\MetaFlow;
+use MinSponsor\Checkout\CheckoutCustomizer;
+use MinSponsor\Gateways\StripeMeta;
+use MinSponsor\Gateways\VippsRecurringMeta;
+use MinSponsor\Settings\PlayerProducts;
+use MinSponsor\Settings\StripeSettings;
+use MinSponsor\Services\StripeCustomerPortal;
+use MinSponsor\Api\StripeOnboarding;
+use MinSponsor\Webhooks\StripeWebhook;
+
 /**
- * Load MinSponsor classes and initialize functionality
+ * Load MinSponsor autoloader
  */
-function minsponsor_load_step5_classes() {
-    $classes = array(
-        'Services/QrService.php',
-        'Services/PlayerLinksService.php',
-        'Frontend/PlayerRoute.php',
-        'Admin/SpillerMetaBox.php',
-        'Checkout/CartPrice.php',
-        'Checkout/MetaFlow.php',
-        'Gateways/StripeMeta.php',
-        'Gateways/VippsRecurringMeta.php',
-        'Settings/PlayerProducts.php'
-    );
-    
-    foreach ($classes as $class) {
-        $file_path = get_template_directory() . '/includes/' . $class;
-        if (file_exists($file_path)) {
-            require_once $file_path;
-        }
+function minsponsor_load_autoloader() {
+    $autoloader_path = get_template_directory() . '/includes/autoload.php';
+    if (file_exists($autoloader_path)) {
+        require_once $autoloader_path;
     }
 }
 
@@ -875,44 +303,65 @@ function minsponsor_load_step5_classes() {
  * Initialize MinSponsor Step 5 functionality
  */
 function minsponsor_init_step5() {
-    // Load classes
-    minsponsor_load_step5_classes();
+    // Load autoloader
+    minsponsor_load_autoloader();
     
     // Initialize services if WooCommerce is active
     if (class_exists('WooCommerce')) {
         // Frontend
-        $player_route = new MinSponsor_PlayerRoute();
+        $player_route = new PlayerRoute();
         $player_route->init();
         
         // Admin
         if (is_admin()) {
-            $spiller_metabox = new MinSponsor_SpillerMetaBox();
+            $spiller_metabox = new SpillerMetaBox();
             $spiller_metabox->init();
+            
+            // Stripe Connect meta box for Lag
+            $lag_stripe_metabox = new LagStripeMetaBox();
+            $lag_stripe_metabox->init();
+            
         }
         
+        // Stripe Connect Onboarding API (always init for AJAX handlers)
+        $stripe_onboarding = new StripeOnboarding();
+        
         // Checkout
-        $cart_price = new MinSponsor_CartPrice();
+        $cart_price = new CartPrice();
         $cart_price->init();
         $cart_price->init_validation();
         
-        $meta_flow = new MinSponsor_MetaFlow();
+        $meta_flow = new MetaFlow();
         $meta_flow->init();
         
+        // Checkout customization (simplified fields, Norwegian, trust signals)
+        $checkout_customizer = new CheckoutCustomizer();
+        $checkout_customizer->init();
+        
+        // Stripe Customer Portal for subscription management
+        if (class_exists(StripeCustomerPortal::class)) {
+            $portal = new StripeCustomerPortal();
+            $portal->init();
+        }
+        
         // Gateways
-        if (MinSponsor_StripeMeta::is_stripe_available()) {
-            $stripe_meta = new MinSponsor_StripeMeta();
+        if (StripeMeta::is_stripe_available()) {
+            $stripe_meta = new StripeMeta();
             $stripe_meta->init();
         }
         
-        if (MinSponsor_VippsRecurringMeta::is_vipps_recurring_available() || 
-            MinSponsor_VippsRecurringMeta::is_mobilepay_recurring_available()) {
-            $vipps_meta = new MinSponsor_VippsRecurringMeta();
+        // Stripe Webhooks (always init to receive account updates)
+        $stripe_webhook = new StripeWebhook();
+        $stripe_webhook->init();
+        
+        if (VippsRecurringMeta::is_vipps_recurring_available() || 
+            VippsRecurringMeta::is_mobilepay_recurring_available()) {
+            $vipps_meta = new VippsRecurringMeta();
             $vipps_meta->init();
         }
         
         // Frontend scripts for error handling
-        add_action('wp_footer', array('MinSponsor_PlayerRoute', 'display_error_notices'));
-        add_action('wp_footer', array('MinSponsor_PlayerRoute', 'add_qr_scripts'));
+        add_action('wp_footer', [PlayerRoute::class, 'display_error_notices']);
     }
 }
 
@@ -925,54 +374,46 @@ function minsponsor_init_admin_settings() {
         return;
     }
     
-    // Ensure classes are loaded first
-    minsponsor_load_step5_classes();
+    // Ensure autoloader is loaded first
+    minsponsor_load_autoloader();
     
     // Check if class exists after loading
-    if (!class_exists('MinSponsor_PlayerProducts')) {
+    if (!class_exists(PlayerProducts::class)) {
         return;
     }
     
     // Initialize settings with proper timing
-    $player_products = new MinSponsor_PlayerProducts();
+    $player_products = new PlayerProducts();
     $player_products->init();
 }
 
-// Initialize main functionality after all plugins loaded
-add_action('plugins_loaded', 'minsponsor_init_step5', 20);
+/**
+ * Initialize MinSponsor Stripe settings page
+ */
+function minsponsor_init_stripe_settings() {
+    if (!is_admin()) {
+        return;
+    }
+    
+    // Load autoloader
+    minsponsor_load_autoloader();
+    
+    // Check if class exists
+    if (!class_exists(StripeSettings::class)) {
+        return;
+    }
+    
+    $stripe_settings = new StripeSettings();
+    $stripe_settings->init();
+}
+add_action('init', 'minsponsor_init_stripe_settings', 10);
+
+// Initialize main functionality after theme setup
+// Note: We use 'init' hook instead of 'plugins_loaded' because themes load AFTER plugins_loaded fires
+add_action('init', 'minsponsor_init_step5', 5);
 
 // Initialize admin settings separately with later timing to ensure WC is fully loaded
 add_action('admin_init', 'minsponsor_init_admin_settings', 15);
-
-/**
- * Generate QR codes when spiller is saved
- */
-function minsponsor_generate_qr_on_save($post_id) {
-    if (get_post_type($post_id) !== 'spiller') {
-        return;
-    }
-    
-    // Only generate for published posts
-    if (get_post_status($post_id) !== 'publish') {
-        return;
-    }
-    
-    // Generate QR codes if they don't exist
-    MinSponsor_QrService::generate_player_qr_codes($post_id, false);
-}
-add_action('save_post_spiller', 'minsponsor_generate_qr_on_save');
-
-/**
- * Clean up QR codes when spiller is deleted
- */
-function minsponsor_cleanup_qr_on_delete($post_id) {
-    if (get_post_type($post_id) !== 'spiller') {
-        return;
-    }
-    
-    MinSponsor_QrService::delete_player_qr_codes($post_id);
-}
-add_action('before_delete_post', 'minsponsor_cleanup_qr_on_delete');
 
 /**
  * Add admin notices for MinSponsor configuration
@@ -1023,58 +464,4 @@ function minsponsor_debug_settings() {
     }
 }
 add_action('admin_notices', 'minsponsor_debug_settings');
-
-// Gjør single-oppslag entydig ved kolliderende slugs (lag/spiller)
-add_action('pre_get_posts', function ($q) {
-    if (is_admin() || !$q->is_main_query()) return;
-
-    $pt         = $q->get('post_type');
-    $name       = $q->get('name');
-    $klubb_slug = $q->get('klubb_slug');
-    $lag_slug   = $q->get('lag_slug');
-
-    // /stott/{klubb}/{lag}/  →  post_type=lag
-    if ($pt === 'lag' && $name && $klubb_slug) {
-        $klubb = get_page_by_path($klubb_slug, OBJECT, 'klubb');
-        if ($klubb) {
-            $mq   = (array) $q->get('meta_query');
-            $mq[] = ['key' => 'parent_klubb', 'value' => (int) $klubb->ID, 'compare' => '='];
-            $q->set('meta_query', $mq);
-            $q->set('posts_per_page', 1);
-        }
-    }
-
-    // /stott/{klubb}/{lag}/{spiller}/  →  post_type=spiller
-    if ($pt === 'spiller' && $name && $klubb_slug && $lag_slug) {
-        $klubb  = get_page_by_path($klubb_slug, OBJECT, 'klubb');
-        $lag_id = 0;
-
-        if ($klubb) {
-            // Finn laget med slug = {lag_slug} INNENFOR denne klubben
-            $lag_q = new WP_Query([
-                'post_type'        => 'lag',
-                'name'             => $lag_slug,
-                'meta_key'         => 'parent_klubb',
-                'meta_value'       => (int) $klubb->ID,
-                'post_status'      => 'any',
-                'fields'           => 'ids',
-                'no_found_rows'    => true,
-                'posts_per_page'   => 1,
-                'suppress_filters' => true,
-            ]);
-            if ($lag_q->have_posts()) {
-                $lag_id = (int) $lag_q->posts[0];
-            }
-            wp_reset_postdata();
-        }
-
-        if ($lag_id) {
-            $mq   = (array) $q->get('meta_query');
-            $mq[] = ['key' => 'parent_lag', 'value' => $lag_id, 'compare' => '='];
-            $q->set('meta_query', $mq);
-            $q->set('posts_per_page', 1);
-        }
-    }
-});
-?>
 

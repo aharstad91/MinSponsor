@@ -8,11 +8,13 @@
  * @since 1.0.0
  */
 
+namespace MinSponsor\Services;
+
 if (!defined('ABSPATH')) {
     exit;
 }
 
-class MinSponsor_PlayerLinksService {
+class PlayerLinksService {
     
     /**
      * Get player support links
@@ -21,7 +23,7 @@ class MinSponsor_PlayerLinksService {
      * @param array $params Optional parameters (amount, ref)
      * @return array|false Array with 'once' and 'month' URLs, or false on failure
      */
-    public function get_player_links($player_id, $params = array()) {
+    public function get_player_links(int $player_id, array $params = []): array|false {
         if (!$player_id || get_post_type($player_id) !== 'spiller') {
             return false;
         }
@@ -34,7 +36,7 @@ class MinSponsor_PlayerLinksService {
         $base_url = home_url('/stott/' . $player_data['klubb_slug'] . '/' . $player_data['lag_slug'] . '/' . $player_data['spiller_slug'] . '/');
         
         // Build query parameters
-        $query_params = array();
+        $query_params = [];
         
         if (isset($params['amount']) && is_numeric($params['amount']) && $params['amount'] > 0) {
             $query_params['amount'] = (int) $params['amount'];
@@ -45,13 +47,13 @@ class MinSponsor_PlayerLinksService {
         }
         
         // Generate links
-        $once_params = array_merge($query_params, array('interval' => 'once'));
-        $month_params = array_merge($query_params, array('interval' => 'month'));
+        $once_params = array_merge($query_params, ['interval' => 'once']);
+        $month_params = array_merge($query_params, ['interval' => 'month']);
         
-        return array(
+        return [
             'once' => add_query_arg($once_params, $base_url),
             'month' => add_query_arg($month_params, $base_url)
-        );
+        ];
     }
     
     /**
@@ -60,7 +62,7 @@ class MinSponsor_PlayerLinksService {
      * @param int $player_id Player post ID
      * @return array|false Hierarchy data or false on failure
      */
-    private function get_player_hierarchy($player_id) {
+    public function get_player_hierarchy(int $player_id): array|false {
         $player = get_post($player_id);
         if (!$player || $player->post_type !== 'spiller') {
             return false;
@@ -88,7 +90,7 @@ class MinSponsor_PlayerLinksService {
             return false;
         }
         
-        return array(
+        return [
             'spiller_id' => $player_id,
             'spiller_slug' => $player->post_name,
             'spiller_name' => $player->post_title,
@@ -98,7 +100,7 @@ class MinSponsor_PlayerLinksService {
             'klubb_id' => $klubb_id,
             'klubb_slug' => $klubb->post_name,
             'klubb_name' => $klubb->post_title
-        );
+        ];
     }
     
     /**
@@ -107,7 +109,7 @@ class MinSponsor_PlayerLinksService {
      * @param int $player_id Player post ID
      * @return int|null Default amount or null if not set
      */
-    public function get_player_default_amount($player_id) {
+    public function get_player_default_amount(int $player_id): ?int {
         $amount = get_post_meta($player_id, 'minsponsor_default_amount', true);
         return $amount ? (int) $amount : null;
     }
@@ -119,12 +121,12 @@ class MinSponsor_PlayerLinksService {
      * @param int $amount Default amount
      * @return bool Success
      */
-    public function set_player_default_amount($player_id, $amount) {
-        if (!is_numeric($amount) || $amount <= 0) {
+    public function set_player_default_amount(int $player_id, int $amount): bool {
+        if ($amount <= 0) {
             return delete_post_meta($player_id, 'minsponsor_default_amount');
         }
         
-        return update_post_meta($player_id, 'minsponsor_default_amount', (int) $amount);
+        return (bool) update_post_meta($player_id, 'minsponsor_default_amount', $amount);
     }
     
     /**
@@ -134,7 +136,7 @@ class MinSponsor_PlayerLinksService {
      * @param array $override_params Parameters to override defaults
      * @return array|false Array with 'once' and 'month' URLs, or false on failure
      */
-    public function get_player_links_with_defaults($player_id, $override_params = array()) {
+    public function get_player_links_with_defaults(int $player_id, array $override_params = []): array|false {
         $default_amount = $this->get_player_default_amount($player_id);
         
         $params = $override_params;
@@ -151,7 +153,7 @@ class MinSponsor_PlayerLinksService {
      * @param string $url Full player URL
      * @return array|false Parsed data or false on failure
      */
-    public function parse_player_url($url) {
+    public function parse_player_url(string $url): array|false {
         $parsed = parse_url($url);
         if (!$parsed || !isset($parsed['path'])) {
             return false;
@@ -176,7 +178,7 @@ class MinSponsor_PlayerLinksService {
         }
         
         // Find lag within this klubb
-        $lag_query = new WP_Query(array(
+        $lag_query = new \WP_Query([
             'post_type' => 'lag',
             'name' => $lag_slug,
             'meta_key' => 'parent_klubb',
@@ -186,7 +188,7 @@ class MinSponsor_PlayerLinksService {
             'no_found_rows' => true,
             'update_post_meta_cache' => false,
             'update_post_term_cache' => false
-        ));
+        ]);
         
         if (!$lag_query->have_posts()) {
             return false;
@@ -195,7 +197,7 @@ class MinSponsor_PlayerLinksService {
         $lag = $lag_query->posts[0];
         
         // Find spiller within this lag
-        $spiller_query = new WP_Query(array(
+        $spiller_query = new \WP_Query([
             'post_type' => 'spiller',
             'name' => $spiller_slug,
             'meta_key' => 'parent_lag',
@@ -205,7 +207,7 @@ class MinSponsor_PlayerLinksService {
             'no_found_rows' => true,
             'update_post_meta_cache' => false,
             'update_post_term_cache' => false
-        ));
+        ]);
         
         if (!$spiller_query->have_posts()) {
             return false;
@@ -214,17 +216,17 @@ class MinSponsor_PlayerLinksService {
         $spiller = $spiller_query->posts[0];
         
         // Parse query parameters
-        $query_params = array();
+        $query_params = [];
         if (isset($parsed['query'])) {
             parse_str($parsed['query'], $query_params);
         }
         
-        return array(
+        return [
             'klubb' => $klubb,
             'lag' => $lag,
             'spiller' => $spiller,
             'params' => $query_params
-        );
+        ];
     }
     
     /**
@@ -233,13 +235,13 @@ class MinSponsor_PlayerLinksService {
      * @param array $params URL parameters
      * @return array Validated and sanitized parameters
      */
-    public function validate_link_params($params) {
-        $validated = array();
+    public function validate_link_params(array $params): array {
+        $validated = [];
         
         // Validate interval
         if (isset($params['interval'])) {
             $interval = strtolower(sanitize_text_field($params['interval']));
-            if (in_array($interval, array('once', 'month'))) {
+            if (in_array($interval, ['once', 'month'], true)) {
                 $validated['interval'] = $interval;
             }
         }
@@ -251,7 +253,7 @@ class MinSponsor_PlayerLinksService {
         
         // Validate amount
         if (isset($params['amount'])) {
-            $amount = intval($params['amount']);
+            $amount = absint($params['amount']);
             if ($amount > 0) {
                 $validated['amount'] = $amount;
             }
@@ -272,13 +274,13 @@ class MinSponsor_PlayerLinksService {
      * @param array $params Validated parameters
      * @return array Cart item data
      */
-    public function get_cart_item_data($player_id, $params) {
+    public function get_cart_item_data(int $player_id, array $params): array {
         $hierarchy = $this->get_player_hierarchy($player_id);
         if (!$hierarchy) {
-            return array();
+            return [];
         }
         
-        $data = array(
+        $data = [
             'minsponsor_club_id' => $hierarchy['klubb_id'],
             'minsponsor_club_name' => $hierarchy['klubb_name'],
             'minsponsor_club_slug' => $hierarchy['klubb_slug'],
@@ -288,8 +290,9 @@ class MinSponsor_PlayerLinksService {
             'minsponsor_player_id' => $hierarchy['spiller_id'],
             'minsponsor_player_name' => $hierarchy['spiller_name'],
             'minsponsor_player_slug' => $hierarchy['spiller_slug'],
-            'minsponsor_interval' => $params['interval']
-        );
+            'minsponsor_interval' => $params['interval'],
+            'minsponsor_recipient_type' => 'spiller'
+        ];
         
         if (isset($params['amount'])) {
             $data['minsponsor_amount'] = $params['amount'];

@@ -1,0 +1,8 @@
+{
+    "name": "minsponsor/spons-theme",
+    "description": "MinSponsor WordPress Theme",
+    "type": "wordpress-theme",
+    "require": {
+        "stripe/stripe-php": "^19.0"
+    }
+}

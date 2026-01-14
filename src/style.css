@@ -2,13 +2,192 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Egne CSS-klasser kan legges til her */
-@layer components {
-  .btn-primary {
-    @apply bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors;
+/* ===========================================
+   MinSponsor Designsystem - CSS Variables
+   =========================================== */
+
+@layer base {
+  :root {
+    /* Primærfarger */
+    --color-korall: #F6A586;
+    --color-korall-light: #F9C4B0;
+    --color-korall-dark: #D97757;
+    
+    /* Bakgrunner */
+    --color-beige: #F5EFE6;
+    --color-krem: #FBF8F3;
+    --color-softgra: #E8E2D9;
+    
+    /* Tekst & detaljer */
+    --color-brun: #3D3228;
+    --color-brun-light: #5A4D3F;
+    
+    /* Sekundær & aksent */
+    --color-terrakotta: #D97757;
+    --color-terrakotta-dark: #B85D42;
+    --color-gul: #F4C85E;
+    
+    /* Aliaser */
+    --color-primary: var(--color-korall);
+    --color-cta: var(--color-terrakotta);
+    --color-text: var(--color-brun);
+    --color-background: var(--color-beige);
+    --color-cream: var(--color-krem);
+    --color-grey: var(--color-softgra);
+    
+    /* Typografi */
+    --font-heading: 'Inter', 'DM Sans', sans-serif;
+    --font-body: 'Inter', 'Source Sans Pro', sans-serif;
+    
+    /* Border radius */
+    --radius-sm: 8px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    
+    /* Spacing (base: 8px) */
+    --spacing-unit: 8px;
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --spacing-2xl: 48px;
+    --spacing-section: 80px;
+    --spacing-section-lg: 120px;
+    
+    /* Shadows */
+    --shadow-warm: 0 4px 20px rgba(61, 50, 40, 0.08);
+    --shadow-warm-lg: 0 8px 30px rgba(61, 50, 40, 0.12);
+    --shadow-warm-sm: 0 2px 10px rgba(61, 50, 40, 0.06);
   }
   
+  /* Base typography */
+  html {
+    font-family: var(--font-body);
+    color: var(--color-text);
+    background-color: var(--color-beige);
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    color: var(--color-brun);
+  }
+  
+  h1 { font-size: 48px; font-weight: 700; line-height: 1.2; }
+  h2 { font-size: 36px; font-weight: 600; line-height: 1.3; }
+  h3 { font-size: 28px; font-weight: 600; line-height: 1.4; }
+  h4 { font-size: 20px; font-weight: 500; line-height: 1.5; }
+  
+  body {
+    font-size: 16px;
+    line-height: 1.7;
+  }
+}
+
+/* ===========================================
+   MinSponsor Komponenter
+   =========================================== */
+
+@layer components {
+  /* Primærknapp (CTA) */
+  .btn-primary {
+    @apply font-semibold transition-all duration-200;
+    background-color: var(--color-cta);
+    color: var(--color-krem);
+    border-radius: var(--radius-sm);
+    padding: 14px 32px;
+    font-size: 16px;
+    box-shadow: var(--shadow-warm-sm);
+  }
+  
+  .btn-primary:hover {
+    background-color: var(--color-terrakotta-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-warm);
+  }
+  
+  /* Sekundærknapp */
+  .btn-secondary {
+    @apply font-semibold transition-all duration-200;
+    background-color: transparent;
+    border: 2px solid var(--color-terrakotta);
+    color: var(--color-terrakotta);
+    border-radius: var(--radius-sm);
+    padding: 12px 30px;
+    font-size: 16px;
+  }
+  
+  .btn-secondary:hover {
+    background-color: var(--color-terrakotta);
+    color: var(--color-krem);
+  }
+  
+  /* Kort/Card */
   .card {
-    @apply bg-white rounded-lg shadow-md p-6;
+    background-color: var(--color-krem);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-warm);
+  }
+  
+  .card-lg {
+    background-color: var(--color-krem);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: var(--shadow-warm);
+  }
+  
+  /* Input-felter */
+  .input-field {
+    background-color: var(--color-krem);
+    border: 1px solid var(--color-softgra);
+    border-radius: var(--radius-sm);
+    padding: 14px 18px;
+    font-size: 16px;
+    color: var(--color-brun);
+    transition: border-color 0.2s ease;
+  }
+  
+  .input-field:focus {
+    outline: none;
+    border-color: var(--color-terrakotta);
+    box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.1);
+  }
+  
+  /* Seksjonsbakgrunner */
+  .section-beige {
+    background-color: var(--color-beige);
+  }
+  
+  .section-cream {
+    background-color: var(--color-krem);
+  }
+  
+  /* Trust signals / Ikoner */
+  .icon-korall {
+    color: var(--color-korall);
+  }
+  
+  .icon-terrakotta {
+    color: var(--color-terrakotta);
+  }
+  
+  /* Divider */
+  .divider {
+    border-color: var(--color-softgra);
+  }
+  
+  /* Text utilities */
+  .text-warm {
+    color: var(--color-brun);
+  }
+  
+  .text-muted {
+    color: var(--color-brun-light);
+  }
+  
+  /* Celebration/Success elements */
+  .celebration {
+    color: var(--color-gul);
   }
 }
