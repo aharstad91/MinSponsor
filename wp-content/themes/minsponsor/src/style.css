@@ -286,7 +286,6 @@
 
   /* Klikkbart glass-kort */
   a.glass-card {
-    display: block;
     text-decoration: none;
     cursor: pointer;
   }
@@ -332,6 +331,7 @@
     align-items: center;
     justify-content: center;
     margin-bottom: var(--spacing-lg);
+    align-self: center;
   }
 
   .blob-icon svg {

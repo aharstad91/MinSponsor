@@ -214,7 +214,7 @@ get_header();
     <div class="max-w-4xl mx-auto flex flex-col items-center">
 
         <h1 class="text-4xl md:text-[56px] font-bold leading-tight mb-6" style="color: var(--color-brun);">
-            Støtt lokalidretten – enkelt og trygt
+            Støtt lokalidretten<br class="hidden md:block"> – enkelt og trygt
         </h1>
 
         <p class="text-lg md:text-xl opacity-80 max-w-xl mb-8" style="color: var(--color-brun);">
