@@ -374,7 +374,7 @@ get_header();
                 <div class="step-circle z-10" style="color: var(--color-brun);">3</div>
                 <h3 class="text-xl font-bold mb-3" style="color: var(--color-brun);">Betal trygt</h3>
                 <p class="opacity-80 px-2" style="color: var(--color-brun);">
-                    Sikker betaling med Vipps eller kort.
+                    Sikker betaling med kort.
                 </p>
             </div>
 

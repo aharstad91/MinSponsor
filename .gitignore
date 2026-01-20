@@ -10,18 +10,18 @@
 !CLAUDE.md
 !wp-content/
 
-# Inside wp-content, ignore everything except themes/spons
+# Inside wp-content, ignore everything except themes/minsponsor
 wp-content/*
 !wp-content/themes/
 !wp-content/_claude/
 wp-content/themes/*
-!wp-content/themes/spons/
+!wp-content/themes/minsponsor/
 
 # Inside the theme, ignore build artifacts
-wp-content/themes/spons/node_modules/
-wp-content/themes/spons/package-lock.json
-wp-content/themes/spons/dist/
-wp-content/themes/spons/vendor/
+wp-content/themes/minsponsor/node_modules/
+wp-content/themes/minsponsor/package-lock.json
+wp-content/themes/minsponsor/dist/
+wp-content/themes/minsponsor/vendor/
 
 # OS files
 .DS_Store

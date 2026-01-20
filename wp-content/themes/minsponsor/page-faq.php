@@ -15,7 +15,7 @@ $faqs = [
         'items' => [
             [
                 'question' => 'Hvordan fungerer betalingen?',
-                'answer' => 'Du velger et beløp og om du vil gi en engangsstøtte eller månedlig. Betalingen skjer trygt via Stripe – samme betalingsløsning som brukes av Spotify, Shopify og millioner av andre bedrifter. Du kan betale med kort (Visa, Mastercard) eller via Vipps.'
+                'answer' => 'Du velger et beløp og om du vil gi en engangsstøtte eller månedlig. Betalingen skjer trygt via Stripe – samme betalingsløsning som brukes av Spotify, Shopify og millioner av andre bedrifter. Du kan betale med kort (Visa, Mastercard).'
             ],
             [
                 'question' => 'Hvor mye går til klubben/laget?',
